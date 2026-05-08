@@ -49,6 +49,7 @@ const criterionOptions = [
   GroupIsMissingCriterionOption,
   createStringCriterionOption("url"),
   createStringCriterionOption("name"),
+  createStringCriterionOption("aliases"),
   createStringCriterionOption("director"),
   createStringCriterionOption("synopsis"),
   createDurationCriterionOption("duration"),
