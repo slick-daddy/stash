@@ -20,9 +20,21 @@ type UpdateSet struct {
 
 // IsEmpty returns true if there is nothing to update.
 func (u *UpdateSet) IsEmpty() bool {
-	withoutID := u.Partial
+	p := u.Partial
 
-	return withoutID == models.GalleryPartial{}
+	return !p.Title.Set &&
+		!p.Code.Set &&
+		p.URLs == nil &&
+		!p.Date.Set &&
+		!p.Details.Set &&
+		!p.Photographer.Set &&
+		!p.Rating.Set &&
+		!p.Organized.Set &&
+		!p.StudioID.Set &&
+		p.SceneIDs == nil &&
+		p.TagIDs == nil &&
+		p.PerformerIDs == nil &&
+		p.PrimaryFileID == nil
 }
 
 // Update updates a gallery by updating the fields in the Partial field.

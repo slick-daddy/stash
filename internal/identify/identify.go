@@ -23,11 +23,12 @@ var (
 )
 
 type MultipleMatchesFoundError struct {
-	Source ScraperSource
+	Name    string
+	Options MetadataOptions
 }
 
 func (e *MultipleMatchesFoundError) Error() string {
-	return fmt.Sprintf("multiple matches found for %s", e.Source.Name)
+	return fmt.Sprintf("multiple matches found for %s", e.Name)
 }
 
 type SceneScraper interface {
@@ -71,7 +72,7 @@ func (t *SceneIdentifier) Identify(ctx context.Context, scene *models.Scene) err
 			logger.Debugf("Identify skipped because multiple results returned for %s", scene.Path)
 
 			// find if the scene should be tagged for multiple results
-			options := t.getOptions(multipleMatchErr.Source)
+			options := multipleMatchErr.Options
 			if options.SkipMultipleMatchTag != nil && len(*options.SkipMultipleMatchTag) > 0 {
 				// Tag it with the multiple results tag
 				err := t.addTagToScene(ctx, scene, *options.SkipMultipleMatchTag)
@@ -113,7 +114,8 @@ func (t *SceneIdentifier) scrapeScene(ctx context.Context, scene *models.Scene) 
 			options := t.getOptions(source)
 			if len(results) > 1 && utils.IsTrue(options.SkipMultipleMatches) {
 				return nil, &MultipleMatchesFoundError{
-					Source: source,
+					Name:    source.Name,
+					Options: options,
 				}
 			} else {
 				// if results were found then return
