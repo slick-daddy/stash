@@ -227,7 +227,12 @@ func (t *GalleryIdentifier) Identify(ctx context.Context, galleryObj *models.Gal
 		if multipleMatchErr != nil {
 			logger.Debugf("Identify skipped because multiple results returned for %s", galleryObj.DisplayName())
 
-			options := multipleMatchErr.Options
+			src := multipleMatchErr.Source
+			options := t.getOptions(GalleryScraperSource{
+				Name:       src.Name,
+				Options:    src.Options,
+				RemoteSite: src.RemoteSite,
+			})
 			if options.SkipMultipleMatchTag != nil && len(*options.SkipMultipleMatchTag) > 0 {
 				err := t.addTagToGallery(ctx, galleryObj, *options.SkipMultipleMatchTag)
 				if err != nil {
@@ -265,8 +270,10 @@ func (t *GalleryIdentifier) scrapeGallery(ctx context.Context, galleryObj *model
 			options := t.getOptions(source)
 			if len(results) > 1 && utils.IsTrue(options.SkipMultipleMatches) {
 				return nil, &MultipleMatchesFoundError{
-					Name:    source.Name,
-					Options: options,
+					Source: ScraperSource{
+						Name:    source.Name,
+						Options: source.Options,
+					},
 				}
 			} else {
 				return &galleryScrapeResult{
