@@ -374,6 +374,9 @@ func (j *IdentifyJob) getGallerySources() ([]identify.GalleryScraperSource, erro
 		}
 
 		// must be a scraper
+		if source.Source.ScraperID == nil {
+			return nil, fmt.Errorf("source must have scraper_id for gallery identify")
+		}
 		scraperID := *source.Source.ScraperID
 		s := instance.ScraperCache.GetScraper(scraperID)
 		if s == nil {

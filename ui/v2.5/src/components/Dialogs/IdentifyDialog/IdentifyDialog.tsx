@@ -165,7 +165,7 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
             id={messageKey}
             values={{
               num: selectedIds.length,
-              scene: intl.formatMessage(
+              [isScene ? "scene" : "gallery"]: intl.formatMessage(
                 {
                   id: countableKey,
                 },
@@ -198,7 +198,7 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
           }
           values={{
             num: intl.formatMessage({ id: "all" }),
-            scene: intl.formatMessage(
+            [isScene ? "scene" : "gallery"]: intl.formatMessage(
               {
                 id: isScene ? "countables.scenes" : "countables.galleries",
               },

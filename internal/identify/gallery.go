@@ -247,7 +247,7 @@ func (t *GalleryIdentifier) Identify(ctx context.Context, galleryObj *models.Gal
 	}
 
 	if err := t.modifyGallery(ctx, galleryObj, result); err != nil {
-		return fmt.Errorf("error modifying gallery: %v", err)
+		return fmt.Errorf("error modifying gallery: %w", err)
 	}
 
 	return nil
@@ -271,8 +271,9 @@ func (t *GalleryIdentifier) scrapeGallery(ctx context.Context, galleryObj *model
 			if len(results) > 1 && utils.IsTrue(options.SkipMultipleMatches) {
 				return nil, &MultipleMatchesFoundError{
 					Source: ScraperSource{
-						Name:    source.Name,
-						Options: source.Options,
+						Name:       source.Name,
+						Options:    source.Options,
+						RemoteSite: source.RemoteSite,
 					},
 				}
 			} else {
@@ -481,7 +482,7 @@ func (t *GalleryIdentifier) addTagToGallery(ctx context.Context, g *models.Galle
 		}
 
 		ret, err := t.TagFinderCreator.Find(ctx, tagID)
-		if err != nil {
+		if err != nil || ret == nil {
 			logger.Infof("Added tag id %s to skipped gallery %s", tagToAdd, g.DisplayName())
 		} else {
 			logger.Infof("Added tag %s to skipped gallery %s", ret.Name, g.DisplayName())
