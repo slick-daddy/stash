@@ -5,6 +5,7 @@ import {
   useConfiguration,
   useConfigureDefaults,
   useListSceneScrapers,
+  useListGalleryScrapers,
 } from "src/core/StashService";
 import { Icon } from "src/components/Shared/Icon";
 import { ModalComponent } from "src/components/Shared/Modal";
@@ -32,11 +33,13 @@ const autoTagScraperID = "builtin_autotag";
 
 interface IIdentifyDialogProps {
   selectedIds?: string[];
+  type?: "scene" | "gallery";
   onClose: () => void;
 }
 
 export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
   selectedIds,
+  type = "scene",
   onClose,
 }) => {
   function getDefaultOptions(): GQL.IdentifyMetadataOptionsInput {
@@ -92,28 +95,46 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
   const Toast = useToast();
 
   const { data: configData, error: configError } = useConfiguration();
-  const { data: scraperData, error: scraperError } = useListSceneScrapers();
+  const { data: sceneScraperData, error: sceneScraperError } =
+    useListSceneScrapers();
+  const { data: galleryScraperData, error: galleryScraperError } =
+    useListGalleryScrapers();
+
+  const isScene = type === "scene";
 
   const allSources = useMemo(() => {
-    if (!configData || !scraperData) return;
+    if (!configData) return;
+
+    let scraperData;
+    if (isScene) {
+      scraperData = sceneScraperData;
+    } else {
+      scraperData = galleryScraperData;
+    }
+
+    if (!scraperData) return;
 
     const ret: IScraperSource[] = [];
 
-    ret.push(
-      ...configData.configuration.general.stashBoxes.map((b, i) => {
-        return {
-          id: `${STASH_BOX_PREFIX}${i}`,
-          displayName: `stash-box: ${b.name}`,
-          stash_box_endpoint: b.endpoint,
-        };
-      })
-    );
+    // only include stash-box sources for scenes
+    if (isScene) {
+      ret.push(
+        ...configData.configuration.general.stashBoxes.map((b, i) => {
+          return {
+            id: `${STASH_BOX_PREFIX}${i}`,
+            displayName: `stash-box: ${b.name}`,
+            stash_box_endpoint: b.endpoint,
+          };
+        })
+      );
+    }
 
     const scrapers = scraperData.listScrapers;
 
-    const fragmentScrapers = scrapers.filter((s) =>
-      s.scene?.supported_scrapes.includes(GQL.ScrapeType.Fragment)
-    );
+    const fragmentScrapers = scrapers.filter((s) => {
+      const spec = isScene ? s.scene : s.gallery;
+      return spec?.supported_scrapes.includes(GQL.ScrapeType.Fragment);
+    });
 
     ret.push(
       ...fragmentScrapers.map((s) => {
@@ -126,19 +147,27 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
     );
 
     return ret;
-  }, [configData, scraperData]);
+  }, [configData, sceneScraperData, galleryScraperData, isScene]);
+
+  const scraperError = isScene ? sceneScraperError : galleryScraperError;
 
   const selectionStatus = useMemo(() => {
     if (selectedIds) {
+      const messageKey = isScene
+        ? "config.tasks.identify.identifying_scenes"
+        : "config.tasks.identify.identifying_galleries";
+      const countableKey = isScene
+        ? "countables.scenes"
+        : "countables.galleries";
       return (
         <Form.Group id="selected-identify-ids">
           <FormattedMessage
-            id="config.tasks.identify.identifying_scenes"
+            id={messageKey}
             values={{
               num: selectedIds.length,
               scene: intl.formatMessage(
                 {
-                  id: "countables.scenes",
+                  id: countableKey,
                 },
                 {
                   count: selectedIds.length,
@@ -162,12 +191,16 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
     ) : (
       <span>
         <FormattedMessage
-          id="config.tasks.identify.identifying_scenes"
+          id={
+            isScene
+              ? "config.tasks.identify.identifying_scenes"
+              : "config.tasks.identify.identifying_galleries"
+          }
           values={{
             num: intl.formatMessage({ id: "all" }),
             scene: intl.formatMessage(
               {
-                id: "countables.scenes",
+                id: isScene ? "countables.scenes" : "countables.galleries",
               },
               {
                 count: 0,
@@ -199,7 +232,7 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
         </div>
       </Form.Group>
     );
-  }, [selectedIds, intl, paths]);
+  }, [selectedIds, intl, paths, isScene]);
 
   useEffect(() => {
     if (!configData || !allSources) return;
@@ -239,8 +272,8 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
           defaultOptions.fieldOptions?.map(withoutTypename);
         setOptions(defaultOptions);
       }
-    } else {
-      // default to first stash-box instance only
+    } else if (isScene) {
+      // default to first stash-box instance only (scenes only)
       const stashBox = allSources.find((s) => s.stash_box_endpoint);
 
       // add auto-tag as well
@@ -267,7 +300,7 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
 
       setSources(newSources);
     }
-  }, [allSources, configData]);
+  }, [allSources, configData, isScene]);
 
   if (configError || scraperError)
     return <div>{configError ?? scraperError}</div>;
@@ -285,14 +318,15 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
         };
       }),
       options,
-      sceneIDs: selectedIds,
+      sceneIDs: isScene ? selectedIds : undefined,
+      galleryIDs: isScene ? undefined : selectedIds,
       paths,
     };
   }
 
   function makeDefaultIdentifyInput() {
     const ret = makeIdentifyInput();
-    const { sceneIDs, paths: _paths, ...withoutSpecifics } = ret;
+    const { sceneIDs, galleryIDs, paths: _paths, ...withoutSpecifics } = ret;
     return withoutSpecifics;
   }
 
