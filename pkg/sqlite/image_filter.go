@@ -92,6 +92,26 @@ func (qb *imageFilterHandler) criterionHandler() criterionHandler {
 		orientationCriterionHandler(imageFilter.Orientation, "image_files.height", "image_files.width", imageRepository.addImageFilesTable),
 		qb.missingCriterionHandler(imageFilter.IsMissing),
 
+		criterionHandlerFunc(func(ctx context.Context, f *filterBuilder) {
+			if imageFilter.StashID != nil {
+				imageRepository.stashIDs.leftJoin(f, "image_stash_ids", "images.id")
+				stringCriterionHandler(imageFilter.StashID, "image_stash_ids.stash_id")(ctx, f)
+			}
+		}),
+		&stashIDCriterionHandler{
+			c:                 imageFilter.StashIDEndpoint,
+			stashIDRepository: &imageRepository.stashIDs,
+			stashIDTableAs:    "image_stash_ids",
+			parentIDCol:       "images.id",
+		},
+		&stashIDsCriterionHandler{
+			c:                 imageFilter.StashIDsEndpoint,
+			stashIDRepository: &imageRepository.stashIDs,
+			stashIDTableAs:    "image_stash_ids",
+			parentIDCol:       "images.id",
+		},
+		qb.stashIDCountCriterionHandler(imageFilter.StashIDCount),
+
 		qb.tagsCriterionHandler(imageFilter.Tags),
 		qb.tagCountCriterionHandler(imageFilter.TagCount),
 		qb.galleriesCriterionHandler(imageFilter.Galleries),
@@ -189,6 +209,9 @@ func (qb *imageFilterHandler) missingCriterionHandler(isMissing *string) criteri
 			case "tags":
 				imageRepository.tags.leftJoin(f, "tags_join", "images.id")
 				f.addWhere("tags_join.image_id IS NULL")
+			case "stash_id":
+				imageRepository.stashIDs.leftJoin(f, "image_stash_ids", "images.id")
+				f.addWhere("image_stash_ids.image_id IS NULL")
 			default:
 				if err := validateIsMissing(*isMissing, []string{
 					"title", "details", "photographer", "date", "code", "rating",
@@ -200,6 +223,16 @@ func (qb *imageFilterHandler) missingCriterionHandler(isMissing *string) criteri
 			}
 		}
 	}
+}
+
+func (qb *imageFilterHandler) stashIDCountCriterionHandler(stashIDCount *models.IntCriterionInput) criterionHandlerFunc {
+	h := countCriterionHandlerBuilder{
+		primaryTable: imageTable,
+		joinTable:    "image_stash_ids",
+		primaryFK:    imageIDColumn,
+	}
+
+	return h.handler(stashIDCount)
 }
 
 func (qb *imageFilterHandler) urlsCriterionHandler(url *models.StringCriterionInput) criterionHandlerFunc {

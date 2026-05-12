@@ -14,6 +14,7 @@ var (
 	performersImagesJoinTable = goqu.T(performersImagesTable)
 	imagesFilesJoinTable      = goqu.T(imagesFilesTable)
 	imagesURLsJoinTable       = goqu.T(imagesURLsTable)
+	imagesStashIDsJoinTable   = goqu.T("image_stash_ids")
 	imagesCustomFieldsTable   = goqu.T("image_custom_fields")
 
 	galleriesFilesJoinTable      = goqu.T(galleriesFilesTable)
@@ -103,6 +104,13 @@ var (
 			idColumn: imagesURLsJoinTable.Col(imageIDColumn),
 		},
 		valueColumn: imagesURLsJoinTable.Col(imageURLColumn),
+	}
+
+	imagesStashIDsTableMgr = &stashIDTable{
+		table: table{
+			table:    imagesStashIDsJoinTable,
+			idColumn: imagesStashIDsJoinTable.Col(imageIDColumn),
+		},
 	}
 )
 

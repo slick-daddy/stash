@@ -57,6 +57,7 @@ export const ImageIsMissingCriterionOption = new IsMissingCriterionOption(
     "studio",
     "performers",
     "tags",
+    "stash_id",
   ]
 );
 

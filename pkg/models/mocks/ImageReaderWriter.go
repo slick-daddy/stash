@@ -577,6 +577,29 @@ func (_m *ImageReaderWriter) GetURLs(ctx context.Context, relatedID int) ([]stri
 	return r0, r1
 }
 
+// GetStashIDs provides a mock function with given fields: ctx, relatedID
+func (_m *ImageReaderWriter) GetStashIDs(ctx context.Context, relatedID int) ([]models.StashID, error) {
+	ret := _m.Called(ctx, relatedID)
+
+	var r0 []models.StashID
+	if rf, ok := ret.Get(0).(func(context.Context, int) []models.StashID); ok {
+		r0 = rf(ctx, relatedID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.StashID)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = rf(ctx, relatedID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // IncrementOCounter provides a mock function with given fields: ctx, id
 func (_m *ImageReaderWriter) IncrementOCounter(ctx context.Context, id int) (int, error) {
 	ret := _m.Called(ctx, id)

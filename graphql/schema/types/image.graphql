@@ -21,6 +21,7 @@ type Image {
   studio: Studio
   tags: [Tag!]!
   performers: [Performer!]!
+  stash_ids: [StashID!]!
   custom_fields: Map!
 }
 

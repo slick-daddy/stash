@@ -762,6 +762,15 @@ input ImageFilterType {
   code: StringCriterionInput
   "Filter by photographer"
   photographer: StringCriterionInput
+  "Filter by StashID"
+  stash_id: StringCriterionInput
+  "Filter by StashID Endpoint"
+  stash_id_endpoint: StashIDCriterionInput
+    @deprecated(reason: "use stash_ids_endpoint instead")
+  "Filter by StashIDs"
+  stash_ids_endpoint: StashIDsCriterionInput
+  "Filter by StashID count"
+  stash_id_count: IntCriterionInput
 
   "Filter by related galleries that meet this criteria"
   galleries_filter: GalleryFilterType

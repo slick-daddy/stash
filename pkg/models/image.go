@@ -35,6 +35,14 @@ type ImageFilterType struct {
 	Orientation *OrientationCriterionInput `json:"orientation"`
 	// Filter to only include images missing this property
 	IsMissing *string `json:"is_missing"`
+	// Filter by StashID
+	StashID *StringCriterionInput `json:"stash_id"`
+	// Filter by StashID Endpoint
+	StashIDEndpoint *StashIDCriterionInput `json:"stash_id_endpoint"`
+	// Filter by StashIDs Endpoint
+	StashIDsEndpoint *StashIDsCriterionInput `json:"stash_ids_endpoint"`
+	// Filter by StashID count
+	StashIDCount *IntCriterionInput `json:"stash_id_count"`
 	// Filter to only include images with this studio
 	Studios *HierarchicalMultiCriterionInput `json:"studios"`
 	// Filter to only include images with these tags

@@ -70,6 +70,7 @@ type ImageReader interface {
 	ImageQueryer
 	ImageCounter
 
+	StashIDLoader
 	URLLoader
 	FileIDLoader
 	GalleryIDLoader

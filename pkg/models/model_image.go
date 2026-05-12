@@ -34,9 +34,10 @@ type Image struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	GalleryIDs   RelatedIDs `json:"gallery_ids"`
-	TagIDs       RelatedIDs `json:"tag_ids"`
-	PerformerIDs RelatedIDs `json:"performer_ids"`
+	GalleryIDs   RelatedIDs      `json:"gallery_ids"`
+	TagIDs       RelatedIDs      `json:"tag_ids"`
+	PerformerIDs RelatedIDs      `json:"performer_ids"`
+	StashIDs     RelatedStashIDs `json:"stash_ids"`
 }
 
 func NewImage() Image {
@@ -72,6 +73,7 @@ type ImagePartial struct {
 	GalleryIDs    *UpdateIDs
 	TagIDs        *UpdateIDs
 	PerformerIDs  *UpdateIDs
+	StashIDs      *UpdateStashIDs
 	PrimaryFileID *FileID
 	CustomFields  CustomFieldsInput
 }
@@ -129,6 +131,12 @@ func (i *Image) LoadPerformerIDs(ctx context.Context, l PerformerIDLoader) error
 func (i *Image) LoadTagIDs(ctx context.Context, l TagIDLoader) error {
 	return i.TagIDs.load(func() ([]int, error) {
 		return l.GetTagIDs(ctx, i.ID)
+	})
+}
+
+func (i *Image) LoadStashIDs(ctx context.Context, l StashIDLoader) error {
+	return i.StashIDs.load(func() ([]StashID, error) {
+		return l.GetStashIDs(ctx, i.ID)
 	})
 }
 

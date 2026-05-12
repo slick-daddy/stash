@@ -162,6 +162,16 @@ func (r *imageResolver) Urls(ctx context.Context, obj *models.Image) ([]string, 
 	return obj.URLs.List(), nil
 }
 
+func (r *imageResolver) StashIds(ctx context.Context, obj *models.Image) (ret []*models.StashID, err error) {
+	if err := r.withReadTxn(ctx, func(ctx context.Context) error {
+		return obj.LoadStashIDs(ctx, r.repository.Image)
+	}); err != nil {
+		return nil, err
+	}
+
+	return stashIDsSliceToPtrSlice(obj.StashIDs.List()), nil
+}
+
 func (r *imageResolver) CustomFields(ctx context.Context, obj *models.Image) (map[string]interface{}, error) {
 	customFields, err := loaders.From(ctx).ImageCustomFields.Load(obj.ID)
 	if err != nil {

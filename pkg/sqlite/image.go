@@ -121,6 +121,7 @@ type imageRepositoryType struct {
 	galleries  joinRepository
 	tags       joinRepository
 	files      filesRepository
+	stashIDs   stashIDRepository
 }
 
 func (r *imageRepositoryType) addImagesFilesTable(f *filterBuilder, joinType joinType) {
@@ -180,6 +181,13 @@ var (
 			fkColumn:     tagIDColumn,
 			foreignTable: tagTable,
 			orderBy:      tagTableSortSQL,
+		},
+
+		stashIDs: stashIDRepository{
+			repository: repository{
+				tableName: "image_stash_ids",
+				idColumn:  imageIDColumn,
+			},
 		},
 	}
 )
@@ -1092,4 +1100,8 @@ func (qb *ImageStore) UpdateTags(ctx context.Context, imageID int, tagIDs []int)
 
 func (qb *ImageStore) GetURLs(ctx context.Context, imageID int) ([]string, error) {
 	return imagesURLsTableMgr.get(ctx, imageID)
+}
+
+func (qb *ImageStore) GetStashIDs(ctx context.Context, imageID int) ([]models.StashID, error) {
+	return imageRepository.stashIDs.get(ctx, imageID)
 }
