@@ -162,6 +162,10 @@ func (r *imageResolver) Urls(ctx context.Context, obj *models.Image) ([]string, 
 	return obj.URLs.List(), nil
 }
 
+func (r *imageResolver) StashIds(ctx context.Context, obj *models.Image) ([]*models.StashID, error) {
+	return nil, nil
+}
+
 func (r *imageResolver) CustomFields(ctx context.Context, obj *models.Image) (map[string]interface{}, error) {
 	customFields, err := loaders.From(ctx).ImageCustomFields.Load(obj.ID)
 	if err != nil {

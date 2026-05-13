@@ -6,6 +6,15 @@ import (
 
 type ImageFilterType struct {
 	OperatorFilter[ImageFilterType]
+
+	// Filter by StashID
+	StashID *StringCriterionInput `json:"stash_id"`
+	// Filter by StashID Endpoint
+	StashIDEndpoint *StashIDCriterionInput `json:"stash_id_endpoint"`
+	// Filter by StashIDs Endpoint
+	StashIDsEndpoint *StashIDsCriterionInput `json:"stash_ids_endpoint"`
+	// Filter by StashID count
+	StashIDCount *IntCriterionInput `json:"stash_id_count"`
 	ID           *IntCriterionInput    `json:"id"`
 	Title        *StringCriterionInput `json:"title"`
 	Code         *StringCriterionInput `json:"code"`
