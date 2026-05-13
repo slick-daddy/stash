@@ -14,7 +14,7 @@ type ImageFilterType struct {
 	// Filter by StashIDs Endpoint
 	StashIDsEndpoint *StashIDsCriterionInput `json:"stash_ids_endpoint"`
 	// Filter by StashID count
-	StashIDCount *IntCriterionInput `json:"stash_id_count"`
+	StashIDCount *IntCriterionInput    `json:"stash_id_count"`
 	ID           *IntCriterionInput    `json:"id"`
 	Title        *StringCriterionInput `json:"title"`
 	Code         *StringCriterionInput `json:"code"`

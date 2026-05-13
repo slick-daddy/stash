@@ -187,11 +187,6 @@ func (r galleryRelationships) tags(ctx context.Context) ([]int, error) {
 	return tagIDs, nil
 }
 
-// stashIDs returns nil for galleries as they do not support stash IDs.
-func (r galleryRelationships) stashIDs(ctx context.Context, _ bool) ([]models.StashID, error) {
-	return nil, nil
-}
-
 type GalleryScraper interface {
 	ScrapeGalleries(ctx context.Context, galleryID int) ([]*models.ScrapedGallery, error)
 }
