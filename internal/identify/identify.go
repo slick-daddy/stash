@@ -38,6 +38,10 @@ type SceneUpdatePostHookExecutor interface {
 	ExecuteSceneUpdatePostHooks(ctx context.Context, input models.SceneUpdateInput, inputFields []string)
 }
 
+type GalleryUpdatePostHookExecutor interface {
+	ExecuteGalleryUpdatePostHooks(ctx context.Context, input models.GalleryUpdateInput, inputFields []string)
+}
+
 type ScraperSource struct {
 	Name       string
 	Options    *MetadataOptions

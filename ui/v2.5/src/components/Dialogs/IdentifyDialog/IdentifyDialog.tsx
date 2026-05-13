@@ -478,7 +478,7 @@ export const IdentifyDialog: React.FC<IIdentifyDialogProps> = ({
       footerButtons={
         <OperationButton
           variant="secondary"
-          disabled={editingField || savingDefaults}
+          disabled={editingField || savingDefaults || !isScene}
           operation={setAsDefault}
         >
           <FormattedMessage id="actions.set_as_default" />

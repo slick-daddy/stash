@@ -212,6 +212,8 @@ type GalleryIdentifier struct {
 
 	DefaultOptions *MetadataOptions
 	Sources        []GalleryScraperSource
+
+	PostHookExecutor GalleryUpdatePostHookExecutor
 }
 
 func (t *GalleryIdentifier) Identify(ctx context.Context, galleryObj *models.Gallery) error {
@@ -456,6 +458,13 @@ func (t *GalleryIdentifier) modifyGallery(ctx context.Context, g *models.Gallery
 		return nil
 	}); err != nil {
 		return err
+	}
+
+	// fire post-update hooks
+	if !updater.IsEmpty() && t.PostHookExecutor != nil {
+		updateInput := updater.UpdateInput()
+		fields := utils.NotNilFields(updateInput, "json")
+		t.PostHookExecutor.ExecuteGalleryUpdatePostHooks(ctx, updateInput, fields)
 	}
 
 	return nil

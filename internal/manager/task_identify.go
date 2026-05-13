@@ -21,8 +21,9 @@ import (
 var ErrInput = errors.New("invalid request input")
 
 type IdentifyJob struct {
-	postHookExecutor identify.SceneUpdatePostHookExecutor
-	input            identify.Options
+	postHookExecutor        identify.SceneUpdatePostHookExecutor
+	galleryPostHookExecutor identify.GalleryUpdatePostHookExecutor
+	input                   identify.Options
 
 	stashBoxes []*models.StashBox
 	progress   *job.Progress
@@ -30,9 +31,10 @@ type IdentifyJob struct {
 
 func CreateIdentifyJob(input identify.Options) *IdentifyJob {
 	return &IdentifyJob{
-		postHookExecutor: instance.PluginCache,
-		input:            input,
-		stashBoxes:       instance.Config.GetStashBoxes(),
+		postHookExecutor:        instance.PluginCache,
+		galleryPostHookExecutor: instance.PluginCache,
+		input:                   input,
+		stashBoxes:              instance.Config.GetStashBoxes(),
 	}
 }
 
@@ -47,6 +49,18 @@ func (j *IdentifyJob) Execute(ctx context.Context, progress *job.Progress) error
 	// if gallery ids provided, run gallery identification
 	if len(j.input.GalleryIDs) > 0 {
 		return j.executeGalleryIDs(ctx)
+	}
+
+	// if no gallery ids provided and no scene ids provided, identify all galleries
+	if len(j.input.GalleryIDs) == 0 && len(j.input.SceneIDs) == 0 {
+		gallerySources, err := j.getGallerySources()
+		if err != nil {
+			return err
+		}
+
+		if len(gallerySources) > 0 {
+			return j.identifyAllGalleries(ctx, gallerySources)
+		}
 	}
 
 	sources, err := j.getSources()
@@ -295,8 +309,9 @@ func (j *IdentifyJob) identifyGallery(ctx context.Context, g *models.Gallery, so
 			PerformerCreator:     r.Performer,
 			TagFinderCreator:     r.Tag,
 
-			DefaultOptions: j.input.Options,
-			Sources:        sources,
+			DefaultOptions:   j.input.Options,
+			Sources:          sources,
+			PostHookExecutor: j.galleryPostHookExecutor,
 		}
 
 		taskError = task.Identify(ctx, g)
