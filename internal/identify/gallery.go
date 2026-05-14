@@ -533,7 +533,7 @@ func getGalleryPartial(gallery *models.Gallery, scraped *models.ScrapedGallery, 
 	if len(scraped.URLs) > 0 && shouldSetSingleValueField(fieldOptions["url"], false) {
 		switch getFieldStrategy(fieldOptions["url"]) {
 		case FieldStrategyOverwrite:
-			if len(sliceutil.Exclude(scraped.URLs, gallery.URLs.List())) != 0 {
+			if !sliceutil.SliceSame(scraped.URLs, gallery.URLs.List()) {
 				partial.URLs = &models.UpdateStrings{
 					Values: scraped.URLs,
 					Mode:   models.RelationshipUpdateModeSet,

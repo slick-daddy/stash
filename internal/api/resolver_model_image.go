@@ -162,6 +162,10 @@ func (r *imageResolver) Urls(ctx context.Context, obj *models.Image) ([]string, 
 	return obj.URLs.List(), nil
 }
 
+// StashIds is a pre-existing stub: the Image model and repository layer do not
+// currently support stash IDs. If support is added in the future, this should
+// follow the same pattern as scene/performer/studio StashIds resolvers,
+// calling obj.LoadStashIDs(ctx, r.repository.Image) inside a read txn.
 func (r *imageResolver) StashIds(ctx context.Context, obj *models.Image) ([]*models.StashID, error) {
 	return nil, nil
 }
