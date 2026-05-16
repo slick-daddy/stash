@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, OverlayTrigger, Tooltip } from "react-bootstrap";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import * as GQL from "src/core/generated-graphql";
 import { GridCard } from "../Shared/GridCard/GridCard";
 import { HoverPopover } from "../Shared/HoverPopover";
@@ -17,6 +17,8 @@ import { GalleryPreviewScrubber } from "./GalleryPreviewScrubber";
 import cx from "classnames";
 import { useHistory } from "react-router-dom";
 import { PatchComponent } from "src/patch";
+import { FavoriteIcon } from "../Shared/FavoriteIcon";
+import { useGalleryUpdate } from "src/core/StashService";
 
 interface IGalleryPreviewProps {
   gallery: GQL.SlimGalleryDataFragment;
@@ -198,16 +200,35 @@ const GalleryCardDetails = PatchComponent(
 const GalleryCardOverlays = PatchComponent(
   "GalleryCard.Overlays",
   (props: IGalleryCardProps) => {
-    const ret = useMemo(() => {
-      return (
+    const [updateGallery] = useGalleryUpdate();
+
+    function onToggleFavorite(v: boolean) {
+      if (props.gallery.id) {
+        updateGallery({
+          variables: {
+            input: {
+              id: props.gallery.id,
+              favorite: v,
+            },
+          },
+        });
+      }
+    }
+
+    return (
+      <>
+        <FavoriteIcon
+          favorite={props.gallery.favorite}
+          onToggleFavorite={onToggleFavorite}
+          size="2x"
+          className="hide-not-favorite"
+        />
         <StudioOverlay
           studio={props.gallery.studio}
           disabled={props.selecting}
         />
-      );
-    }, [props.gallery.studio, props.selecting]);
-
-    return ret;
+      </>
+    );
   }
 );
 

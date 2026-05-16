@@ -32,6 +32,7 @@ import { useRatingKeybinds } from "src/hooks/keybinds";
 import { useConfigurationContext } from "src/hooks/Config";
 import TextUtils from "src/utils/text";
 import { RatingSystem } from "src/components/Shared/Rating/RatingSystem";
+import { FavoriteIcon } from "src/components/Shared/FavoriteIcon";
 import cx from "classnames";
 import { TruncatedText } from "src/components/Shared/TruncatedText";
 import { goBackOrReplace } from "src/utils/history";
@@ -148,6 +149,17 @@ const ImagePage: React.FC<IProps> = ({ image }) => {
         input: {
           id: image.id,
           rating100: v,
+        },
+      },
+    });
+  }
+
+  function setFavorite(v: boolean) {
+    updateImage({
+      variables: {
+        input: {
+          id: image.id,
+          favorite: v,
         },
       },
     });
@@ -347,6 +359,12 @@ const ImagePage: React.FC<IProps> = ({ image }) => {
         </div>
 
         <div className="image-toolbar">
+          <span className="image-toolbar-group">
+            <FavoriteIcon
+              favorite={image.favorite}
+              onToggleFavorite={setFavorite}
+            />
+          </span>
           <span className="image-toolbar-group">
             <RatingSystem
               value={image.rating100}

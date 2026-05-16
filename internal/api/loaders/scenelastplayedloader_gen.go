@@ -5,8 +5,6 @@ package loaders
 import (
 	"sync"
 	"time"
-
-	"time"
 )
 
 // SceneLastPlayedLoaderConfig captures the config to create a new SceneLastPlayedLoader

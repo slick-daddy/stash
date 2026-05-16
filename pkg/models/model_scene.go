@@ -19,7 +19,7 @@ type Scene struct {
 	// Rating expressed in 1-100 scale
 	Rating    *int `json:"rating"`
 	Organized bool `json:"organized"`
-	Favourite bool `json:"favourite"`
+	Favorite  bool `json:"favorite"`
 	StudioID  *int `json:"studio_id"`
 
 	// transient - not persisted
@@ -79,7 +79,7 @@ type ScenePartial struct {
 	// Rating expressed in 1-100 scale
 	Rating       OptionalInt
 	Organized    OptionalBool
-	Favourite    OptionalBool
+	Favorite     OptionalBool
 	StudioID     OptionalInt
 	CreatedAt    OptionalTime
 	UpdatedAt    OptionalTime

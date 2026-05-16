@@ -5,8 +5,6 @@ package loaders
 import (
 	"sync"
 	"time"
-
-	"time"
 )
 
 // ScenePlayHistoryLoaderConfig captures the config to create a new ScenePlayHistoryLoader

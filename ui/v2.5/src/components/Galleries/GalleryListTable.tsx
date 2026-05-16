@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import * as GQL from "src/core/generated-graphql";
 import NavUtils from "src/utils/navigation";
@@ -9,6 +10,9 @@ import { RatingSystem } from "../Shared/Rating/RatingSystem";
 import { useGalleryUpdate } from "src/core/StashService";
 import { IColumn, ListTable } from "../List/ListTable";
 import { useTableColumns } from "src/hooks/useTableColumns";
+import { Icon } from "../Shared/Icon";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import cx from "classnames";
 
 interface IGalleryListTableProps {
   galleries: GQL.SlimGalleryDataFragment[];
@@ -24,6 +28,19 @@ export const GalleryListTable: React.FC<IGalleryListTableProps> = (
   const intl = useIntl();
 
   const [updateGallery] = useGalleryUpdate();
+
+  function setFavorite(v: boolean, galleryId: string) {
+    if (galleryId) {
+      updateGallery({
+        variables: {
+          input: {
+            id: galleryId,
+            favorite: v,
+          },
+        },
+      });
+    }
+  }
 
   function setRating(v: number | null, galleryId: string) {
     if (galleryId) {
@@ -62,6 +79,15 @@ export const GalleryListTable: React.FC<IGalleryListTableProps> = (
       </Link>
     );
   };
+
+  const FavoriteCell = (gallery: GQL.SlimGalleryDataFragment) => (
+    <Button
+      className={cx("minimal", gallery.favorite ? "favorite" : "not-favorite")}
+      onClick={() => setFavorite(!gallery.favorite, gallery.id)}
+    >
+      <Icon icon={faHeart} />
+    </Button>
+  );
 
   const DateCell = (gallery: GQL.SlimGalleryDataFragment) => (
     <>{gallery.date}</>
@@ -154,6 +180,12 @@ export const GalleryListTable: React.FC<IGalleryListTableProps> = (
   }
 
   const allColumns: IColumnSpec[] = [
+    {
+      value: "favourite",
+      label: intl.formatMessage({ id: "favourite" }),
+      defaultShow: true,
+      render: FavoriteCell,
+    },
     {
       value: "cover_image",
       label: intl.formatMessage({ id: "cover_image" }),

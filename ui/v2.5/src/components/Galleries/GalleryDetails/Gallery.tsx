@@ -39,6 +39,7 @@ import { galleryPath, galleryTitle } from "src/core/galleries";
 import { GalleryChapterPanel } from "./GalleryChaptersPanel";
 import { useScrollToTopOnMount } from "src/hooks/scrollToTop";
 import { RatingSystem } from "src/components/Shared/Rating/RatingSystem";
+import { FavoriteIcon } from "src/components/Shared/FavoriteIcon";
 import cx from "classnames";
 import { useRatingKeybinds } from "src/hooks/keybinds";
 import { useConfigurationContext } from "src/hooks/Config";
@@ -377,6 +378,17 @@ export const GalleryPage: React.FC<IProps> = ({ gallery, add }) => {
     });
   }
 
+  function setFavorite(v: boolean) {
+    updateGallery({
+      variables: {
+        input: {
+          id: gallery.id,
+          favorite: v,
+        },
+      },
+    });
+  }
+
   useRatingKeybinds(
     true,
     configuration?.ui.ratingSystemOptions?.type,
@@ -429,6 +441,12 @@ export const GalleryPage: React.FC<IProps> = ({ gallery, add }) => {
           </div>
 
           <div className="gallery-toolbar">
+            <span className="gallery-toolbar-group">
+              <FavoriteIcon
+                favorite={gallery.favorite}
+                onToggleFavorite={setFavorite}
+              />
+            </span>
             <span className="gallery-toolbar-group">
               <RatingSystem
                 value={gallery.rating100}

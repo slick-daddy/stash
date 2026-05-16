@@ -31,6 +31,8 @@ import { GroupTag } from "../Groups/GroupTag";
 import { FileSize } from "../Shared/FileSize";
 import { OCounterButton } from "../Shared/CountButton";
 import { defaultPreviewVolume } from "src/core/config";
+import { FavoriteIcon } from "../Shared/FavoriteIcon";
+import { useSceneUpdate } from "src/core/StashService";
 
 interface IScenePreviewProps {
   isPortrait: boolean;
@@ -345,13 +347,32 @@ const SceneCardDetails = PatchComponent(
 const SceneCardOverlays = PatchComponent(
   "SceneCard.Overlays",
   (props: ISceneCardProps) => {
-    const ret = useMemo(() => {
-      return (
-        <StudioOverlay studio={props.scene.studio} disabled={props.selecting} />
-      );
-    }, [props.scene.studio, props.selecting]);
+    const [updateScene] = useSceneUpdate();
 
-    return ret;
+    function onToggleFavorite(v: boolean) {
+      if (props.scene.id) {
+        updateScene({
+          variables: {
+            input: {
+              id: props.scene.id,
+              favorite: v,
+            },
+          },
+        });
+      }
+    }
+
+    return (
+      <>
+        <FavoriteIcon
+          favorite={props.scene.favorite}
+          onToggleFavorite={onToggleFavorite}
+          size="2x"
+          className="hide-not-favorite"
+        />
+        <StudioOverlay studio={props.scene.studio} disabled={props.selecting} />
+      </>
+    );
   }
 );
 

@@ -40,7 +40,7 @@ type imageRow struct {
 	Details       zero.String `db:"details"`
 	Photographer  zero.String `db:"photographer"`
 	Organized     bool        `db:"organized"`
-	Favourite     bool        `db:"favourite"`
+	Favorite      bool        `db:"favorite"`
 	OCounter      int         `db:"o_counter"`
 	StudioID      null.Int    `db:"studio_id,omitempty"`
 	CreatedAt     Timestamp   `db:"created_at"`
@@ -57,7 +57,7 @@ func (r *imageRow) fromImage(i models.Image) {
 	r.Details = zero.StringFrom(i.Details)
 	r.Photographer = zero.StringFrom(i.Photographer)
 	r.Organized = i.Organized
-	r.Favourite = i.Favourite
+	r.Favorite = i.Favorite
 	r.OCounter = i.OCounter
 	r.StudioID = intFromPtr(i.StudioID)
 	r.CreatedAt = Timestamp{Timestamp: i.CreatedAt}
@@ -82,7 +82,7 @@ func (r *imageQueryRow) resolve() *models.Image {
 		Details:      r.Details.String,
 		Photographer: r.Photographer.String,
 		Organized:    r.Organized,
-		Favourite:    r.Favourite,
+		Favorite:     r.Favorite,
 		OCounter:     r.OCounter,
 		StudioID:     nullIntPtr(r.StudioID),
 
@@ -112,7 +112,7 @@ func (r *imageRowRecord) fromPartial(i models.ImagePartial) {
 	r.setNullString("details", i.Details)
 	r.setNullString("photographer", i.Photographer)
 	r.setBool("organized", i.Organized)
-	r.setBool("favourite", i.Favourite)
+	r.setBool("favorite", i.Favorite)
 	r.setInt("o_counter", i.OCounter)
 	r.setNullInt("studio_id", i.StudioID)
 	r.setTimestamp("created_at", i.CreatedAt)

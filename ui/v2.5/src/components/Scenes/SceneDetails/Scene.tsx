@@ -43,6 +43,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { objectPath, objectTitle } from "src/core/files";
 import { RatingSystem } from "src/components/Shared/Rating/RatingSystem";
+import { FavoriteIcon } from "src/components/Shared/FavoriteIcon";
 import TextUtils from "src/utils/text";
 import {
   OCounterButton,
@@ -230,6 +231,17 @@ const ScenePage: React.FC<IProps> = PatchComponent("ScenePage", (props) => {
         input: {
           id: scene.id,
           rating100: v,
+        },
+      },
+    });
+  }
+
+  function setFavorite(v: boolean) {
+    updateScene({
+      variables: {
+        input: {
+          id: scene.id,
+          favorite: v,
         },
       },
     });
@@ -696,6 +708,12 @@ const ScenePage: React.FC<IProps> = PatchComponent("ScenePage", (props) => {
           </div>
 
           <div className="scene-toolbar">
+            <span className="scene-toolbar-group">
+              <FavoriteIcon
+                favorite={scene.favorite}
+                onToggleFavorite={setFavorite}
+              />
+            </span>
             <span className="scene-toolbar-group">
               <RatingSystem
                 value={scene.rating100}

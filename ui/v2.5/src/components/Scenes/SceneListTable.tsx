@@ -12,6 +12,10 @@ import { useSceneUpdate } from "src/core/StashService";
 import { IColumn, ListTable } from "../List/ListTable";
 import { useTableColumns } from "src/hooks/useTableColumns";
 import { FileSize } from "../Shared/FileSize";
+import { Icon } from "../Shared/Icon";
+import { Button } from "react-bootstrap";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import cx from "classnames";
 
 interface ISceneListTableProps {
   scenes: GQL.SlimSceneDataFragment[];
@@ -28,6 +32,19 @@ export const SceneListTable: React.FC<ISceneListTableProps> = (
   const intl = useIntl();
 
   const [updateScene] = useSceneUpdate();
+
+  function setFavorite(v: boolean, sceneId: string) {
+    if (sceneId) {
+      updateScene({
+        variables: {
+          input: {
+            id: sceneId,
+            favorite: v,
+          },
+        },
+      });
+    }
+  }
 
   function setRating(v: number | null, sceneId: string) {
     if (sceneId) {
@@ -72,6 +89,15 @@ export const SceneListTable: React.FC<ISceneListTableProps> = (
       </Link>
     );
   };
+
+  const FavoriteCell = (scene: GQL.SlimSceneDataFragment) => (
+    <Button
+      className={cx("minimal", scene.favorite ? "favorite" : "not-favorite")}
+      onClick={() => setFavorite(!scene.favorite, scene.id)}
+    >
+      <Icon icon={faHeart} />
+    </Button>
+  );
 
   const DateCell = (scene: GQL.SlimSceneDataFragment) => <>{scene.date}</>;
 
@@ -256,6 +282,12 @@ export const SceneListTable: React.FC<ISceneListTableProps> = (
   }
 
   const allColumns: IColumnSpec[] = [
+    {
+      value: "favourite",
+      label: intl.formatMessage({ id: "favourite" }),
+      defaultShow: true,
+      render: FavoriteCell,
+    },
     {
       value: "cover_image",
       label: intl.formatMessage({ id: "cover_image" }),

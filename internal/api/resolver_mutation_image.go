@@ -113,7 +113,7 @@ func (r *mutationResolver) imageUpdate(ctx context.Context, input models.ImageUp
 	updatedImage.Photographer = translator.optionalString(input.Photographer, "photographer")
 	updatedImage.Rating = translator.optionalInt(input.Rating100, "rating100")
 	updatedImage.Organized = translator.optionalBool(input.Organized, "organized")
-	updatedImage.Favourite = translator.optionalBool(input.Favourite, "favourite")
+	updatedImage.Favorite = translator.optionalBool(input.Favorite, "favorite")
 
 	updatedImage.Date, err = translator.optionalDate(input.Date, "date")
 	if err != nil {
@@ -220,7 +220,7 @@ func (r *mutationResolver) BulkImageUpdate(ctx context.Context, input BulkImageU
 	updatedImage.Photographer = translator.optionalString(input.Photographer, "photographer")
 	updatedImage.Rating = translator.optionalInt(input.Rating100, "rating100")
 	updatedImage.Organized = translator.optionalBool(input.Organized, "organized")
-	updatedImage.Favourite = translator.optionalBool(input.Favourite, "favourite")
+	updatedImage.Favorite = translator.optionalBool(input.Favorite, "favorite")
 
 	updatedImage.Date, err = translator.optionalDate(input.Date, "date")
 	if err != nil {
@@ -231,7 +231,7 @@ func (r *mutationResolver) BulkImageUpdate(ctx context.Context, input BulkImageU
 		return nil, fmt.Errorf("converting studio id: %w", err)
 	}
 
-	updatedImage.URLs = translator.updateStringsBulk(input.Urls, "urls")
+	updatedImage.URLs = translator.optionalURLsBulk(input.Urls, input.URL)
 
 	updatedImage.GalleryIDs, err = translator.updateIdsBulk(input.GalleryIds, "gallery_ids")
 	if err != nil {

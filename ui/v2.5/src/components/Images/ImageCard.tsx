@@ -19,6 +19,8 @@ import { PatchComponent } from "src/patch";
 import { TruncatedText } from "../Shared/TruncatedText";
 import { StudioOverlay } from "../Shared/GridCard/StudioOverlay";
 import { OCounterButton } from "../Shared/CountButton";
+import { FavoriteIcon } from "../Shared/FavoriteIcon";
+import { useImageUpdate } from "src/core/StashService";
 
 interface IImageCardProps {
   image: GQL.SlimImageDataFragment;
@@ -148,13 +150,32 @@ const ImageCardDetails = PatchComponent(
 const ImageCardOverlays = PatchComponent(
   "ImageCard.Overlays",
   (props: IImageCardProps) => {
-    const ret = useMemo(() => {
-      return (
-        <StudioOverlay studio={props.image.studio} disabled={props.selecting} />
-      );
-    }, [props.image.studio, props.selecting]);
+    const [updateImage] = useImageUpdate();
 
-    return ret;
+    function onToggleFavorite(v: boolean) {
+      if (props.image.id) {
+        updateImage({
+          variables: {
+            input: {
+              id: props.image.id,
+              favorite: v,
+            },
+          },
+        });
+      }
+    }
+
+    return (
+      <>
+        <FavoriteIcon
+          favorite={props.image.favorite}
+          onToggleFavorite={onToggleFavorite}
+          size="2x"
+          className="hide-not-favorite"
+        />
+        <StudioOverlay studio={props.image.studio} disabled={props.selecting} />
+      </>
+    );
   }
 );
 

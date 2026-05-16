@@ -46,3 +46,39 @@ export class PerformerFavoriteCriterion extends BooleanCriterion {
     super(PerformerFavoriteCriterionOption);
   }
 }
+
+export const FavoriteSceneCriterionOption = new BooleanCriterionOption(
+  "favourite",
+  "favorite",
+  () => new FavoriteSceneCriterion()
+);
+
+export class FavoriteSceneCriterion extends BooleanCriterion {
+  constructor() {
+    super(FavoriteSceneCriterionOption);
+  }
+}
+
+export const FavoriteImageCriterionOption = new BooleanCriterionOption(
+  "favourite",
+  "favorite",
+  () => new FavoriteImageCriterion()
+);
+
+export class FavoriteImageCriterion extends BooleanCriterion {
+  constructor() {
+    super(FavoriteImageCriterionOption);
+  }
+}
+
+export const FavoriteGalleryCriterionOption = new BooleanCriterionOption(
+  "favourite",
+  "favorite",
+  () => new FavoriteGalleryCriterion()
+);
+
+export class FavoriteGalleryCriterion extends BooleanCriterion {
+  constructor() {
+    super(FavoriteGalleryCriterionOption);
+  }
+}
