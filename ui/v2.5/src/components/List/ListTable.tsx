@@ -7,6 +7,7 @@ export interface IColumn {
   label: string;
   value: string;
   mandatory?: boolean;
+  sortable?: boolean;
 }
 
 export const ColumnSelector: React.FC<{
@@ -47,7 +48,27 @@ interface IListTableProps<T> {
   selectedIds: Set<string>;
   onSelectChange: (id: string, selected: boolean, shiftKey: boolean) => void;
   renderCell: (column: IColumn, item: T, index: number) => React.ReactNode;
+  onSort?: (value: string) => void;
+  sortBy?: string;
+  sortDirection?: string;
 }
+
+const SortIcon: React.FC<{
+  column: IColumn;
+  sortBy?: string;
+  sortDirection?: string;
+}> = ({ column, sortBy, sortDirection }) => {
+  if (!column.sortable) return null;
+
+  const isActive = sortBy === column.value;
+  if (!isActive) {
+    return <span className="sort-icon"> ⇅</span>;
+  }
+
+  return (
+    <span className="sort-icon">{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+  );
+};
 
 export const ListTable = <T extends { id: string }>(
   props: IListTableProps<T>
@@ -61,6 +82,9 @@ export const ListTable = <T extends { id: string }>(
     selectedIds,
     onSelectChange,
     renderCell,
+    onSort,
+    sortBy,
+    sortDirection,
   } = props;
 
   const visibleColumns = useMemo(() => {
@@ -102,12 +126,40 @@ export const ListTable = <T extends { id: string }>(
   };
 
   const columnHeaders = useMemo(() => {
-    return visibleColumns.map((column) => (
-      <th key={column.value} className={`${column.value}-head`}>
-        {column.label}
-      </th>
-    ));
-  }, [visibleColumns]);
+    return visibleColumns.map((column) => {
+      const isSortable = column.sortable && onSort;
+      const classNames = cx(`${column.value}-head`, {
+        sortable: isSortable,
+      });
+
+      return (
+        <th
+          key={column.value}
+          className={classNames}
+          onClick={isSortable ? () => onSort(column.value) : undefined}
+          role={isSortable ? "button" : undefined}
+          tabIndex={isSortable ? 0 : undefined}
+          onKeyDown={
+            isSortable
+              ? (e: React.KeyboardEvent) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSort(column.value);
+                  }
+                }
+              : undefined
+          }
+        >
+          {column.label}
+          <SortIcon
+            column={column}
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+          />
+        </th>
+      );
+    });
+  }, [visibleColumns, onSort, sortBy, sortDirection]);
 
   return (
     <div className={cx("table-list", className)}>

@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { useIntl } from "react-intl";
 import * as GQL from "src/core/generated-graphql";
 import { useStudioUpdate } from "src/core/StashService";
@@ -24,6 +24,9 @@ export const StudioListTable: React.FC<IStudioListTableProps> = ({
   studios,
   selectedIds,
   onSelectChange,
+  onSort,
+  sortBy,
+  sortDirection,
 }) => {
   const intl = useIntl();
   const [updateStudio] = useStudioUpdate();
@@ -151,42 +154,49 @@ export const StudioListTable: React.FC<IStudioListTableProps> = ({
       label: intl.formatMessage({ id: "name" }),
       mandatory: true,
       defaultShow: true,
+      sortable: true,
       render: NameCell,
     },
     {
       value: "aliases",
       label: intl.formatMessage({ id: "aliases" }),
       defaultShow: true,
+      sortable: true,
       render: AliasesCell,
     },
     {
       value: "rating",
       label: intl.formatMessage({ id: "rating" }),
       defaultShow: true,
+      sortable: true,
       render: RatingCell,
     },
     {
       value: "scene_count",
       label: intl.formatMessage({ id: "scenes" }),
       defaultShow: true,
+      sortable: true,
       render: SceneCountCell,
     },
     {
       value: "image_count",
       label: intl.formatMessage({ id: "images" }),
       defaultShow: true,
+      sortable: true,
       render: ImageCountCell,
     },
     {
       value: "gallery_count",
       label: intl.formatMessage({ id: "galleries" }),
       defaultShow: true,
+      sortable: true,
       render: GalleryCountCell,
     },
     {
       value: "performer_count",
       label: intl.formatMessage({ id: "performers" }),
       defaultShow: true,
+      sortable: true,
       render: PerformerCountCell,
     },
     {
@@ -235,6 +245,9 @@ export const StudioListTable: React.FC<IStudioListTableProps> = ({
       selectedIds={selectedIds}
       onSelectChange={onSelectChange}
       renderCell={renderCell}
+      onSort={onSort}
+      sortBy={sortBy}
+      sortDirection={sortDirection}
     />
   );
 };
