@@ -44,6 +44,10 @@ const sortByOptions = [
       value: "o_counter",
       sfwMessageID: "o_count_sfw",
     },
+    {
+      messageID: "favourite",
+      value: "favorite",
+    },
   ]);
 const displayModeOptions = [DisplayMode.Grid, DisplayMode.Wall];
 

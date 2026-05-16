@@ -18,6 +18,7 @@ import { CustomFieldsCriterionOption } from "./criteria/custom-fields";
 const defaultSortBy = "name";
 const sortByOptions = [
   "name",
+  "favorite",
   "tag_count",
   "random",
   "rating",

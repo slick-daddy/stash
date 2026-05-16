@@ -82,7 +82,13 @@ const StudioList: React.FC<{
       );
     }
     if (filter.displayMode === DisplayMode.Wall) {
-      return <h1>TODO</h1>;
+      return (
+        <StudioListTable
+          studios={studios}
+          selectedIds={selectedIds}
+          onSelectChange={onSelectChange}
+        />
+      );
     }
     if (filter.displayMode === DisplayMode.Tagger) {
       return <StudioTagger studios={studios} />;

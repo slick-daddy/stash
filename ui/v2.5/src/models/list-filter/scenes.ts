@@ -82,6 +82,10 @@ const sortByOptions = [
       messageID: "scene_code",
       value: "code",
     },
+    {
+      messageID: "favourite",
+      value: "favorite",
+    },
   ]);
 const displayModeOptions = [
   DisplayMode.Grid,

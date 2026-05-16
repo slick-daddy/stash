@@ -40,6 +40,10 @@ const sortByOptions = ["date", ...MediaSortByOptions]
       messageID: "zip_file_count",
       value: "file_count",
     },
+    {
+      messageID: "favourite",
+      value: "favorite",
+    },
   ]);
 
 const displayModeOptions = [

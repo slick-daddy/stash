@@ -663,6 +663,7 @@ var studioSortOptions = sortOptions{
 	"created_at",
 	"galleries_count",
 	"id",
+	"favorite",
 	"images_count",
 	"latest_scene",
 	"name",

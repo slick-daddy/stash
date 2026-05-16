@@ -958,6 +958,7 @@ var imageSortOptions = sortOptions{
 	"filesize",
 	"id",
 	"o_counter",
+	"favorite",
 	"path",
 	"performer_count",
 	"random",

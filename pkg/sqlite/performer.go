@@ -812,6 +812,7 @@ var performerSortOptions = sortOptions{
 	"galleries_count",
 	"height",
 	"id",
+	"favorite",
 	"images_count",
 	"last_o_at",
 	"last_played_at",

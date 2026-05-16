@@ -799,6 +799,7 @@ var gallerySortOptions = sortOptions{
 	"file_count",
 	"file_mod_time",
 	"id",
+	"favorite",
 	"images_count",
 	"path",
 	"performer_count",

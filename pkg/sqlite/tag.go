@@ -794,6 +794,7 @@ var tagSortOptions = sortOptions{
 	"galleries_count",
 	"groups_count",
 	"id",
+	"favorite",
 	"images_count",
 	"movies_count",
 	"studios_count",

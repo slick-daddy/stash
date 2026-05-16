@@ -1140,6 +1140,7 @@ var sceneSortOptions = sortOptions{
 	"movie_scene_number",
 	"o_counter",
 	"organized",
+	"favorite",
 	"performer_count",
 	"play_count",
 	"play_duration",

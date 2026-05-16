@@ -18,7 +18,13 @@ import { StashIDCriterionOption } from "./criteria/stash-ids";
 import { CustomFieldsCriterionOption } from "./criteria/custom-fields";
 
 const defaultSortBy = "name";
-const sortByOptions = ["name", "random", "scenes_duration", "scenes_size"]
+const sortByOptions = [
+  "name",
+  "favorite",
+  "random",
+  "scenes_duration",
+  "scenes_size",
+]
   .map(ListFilterOptions.createSortBy)
   .concat([
     {

@@ -23,6 +23,7 @@ import { GroupsCriterionOption } from "./criteria/groups";
 const defaultSortBy = "name";
 const sortByOptions = [
   "name",
+  "favorite",
   "height",
   "birthdate",
   "tag_count",
