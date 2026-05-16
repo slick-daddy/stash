@@ -144,7 +144,6 @@ export const StudioListTable: React.FC<IStudioListTableProps> = ({
       value: "image",
       label: intl.formatMessage({ id: "image" }),
       defaultShow: true,
-      sortable: false,
       render: ImageCell,
     },
     {
@@ -158,7 +157,6 @@ export const StudioListTable: React.FC<IStudioListTableProps> = ({
       value: "aliases",
       label: intl.formatMessage({ id: "aliases" }),
       defaultShow: true,
-      sortable: false,
       render: AliasesCell,
     },
     {
@@ -195,7 +193,6 @@ export const StudioListTable: React.FC<IStudioListTableProps> = ({
       value: "related",
       label: intl.formatMessage({ id: "related_studios" }),
       defaultShow: true,
-      sortable: false,
       render: RelatedCell,
     },
   ];
