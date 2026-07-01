@@ -59,7 +59,7 @@ function sortResults(
   tags: Pick<TagDataFragment, "id" | "name" | "aliases" | "favorite">[],
   sortFavoritesFirst: boolean
 ) {
-  const sortedTags = sortByRelevance(
+  let sortedTags = sortByRelevance(
     query,
     tags ?? [],
     (t) => t.name,
@@ -67,7 +67,9 @@ function sortResults(
   );
 
   if (sortFavoritesFirst) {
-    sortedTags.sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite));
+    sortedTags = [...sortedTags].sort(
+      (a, b) => Number(!!b.favorite) - Number(!!a.favorite)
+    );
   }
 
   return sortedTags.map((p) => {
