@@ -42,7 +42,9 @@ export type SelectObject = {
 export type Tag = Pick<
   GQL.Tag,
   "id" | "name" | "sort_name" | "aliases" | "image_path" | "stash_ids"
->;
+> & {
+  favorite?: boolean;
+};
 type Option = SelectOption<Tag>;
 
 type FindTagsResult = Awaited<
@@ -56,6 +58,10 @@ function sortTagsByRelevance(input: string, tags: FindTagsResult) {
     (t) => t.name,
     (t) => t.aliases
   );
+}
+
+function sortFavoritedTagsFirst<T extends { favorite?: boolean }>(tags: T[]) {
+  return [...tags].sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite));
 }
 
 const tagSelectSort = PatchFunction("TagSelect.sort", sortTagsByRelevance);
@@ -75,6 +81,7 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
   const maxOptionsShown =
     configuration?.ui.maxOptionsShown ?? defaultMaxOptionsShown;
   const defaultCreatable = !configuration?.interface.disableDropdownCreate.tag;
+  const sortFavoritesFirst = configuration?.ui.sortFavoritedTagsFirst ?? false;
 
   const exclude = useMemo(() => props.excludeIds ?? [], [props.excludeIds]);
 
@@ -111,7 +118,11 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
     const query = await queryFindTagsForSelect(filter);
     const ret = query.data.findTags.tags.filter(filterExcluded);
 
-    return tagSelectSort(input, ret).map(toOption);
+    const sortedTags = tagSelectSort(input, ret);
+
+    return (
+      sortFavoritesFirst ? sortFavoritedTagsFirst(sortedTags) : sortedTags
+    ).map(toOption);
   }
 
   const TagOption: React.FC<OptionProps<Option, boolean>> = (optionProps) => {
@@ -217,6 +228,7 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
       id,
       name,
       aliases: [],
+      favorite: false,
       stash_ids: [],
     };
   };
