@@ -12,6 +12,7 @@ export const MediaSortByOptions = [
   "path",
   "rating",
   "file_mod_time",
+  "file_birth_time",
   "tag_count",
   "performer_count",
   "random",
@@ -34,7 +35,7 @@ export class ListFilterOptions {
     defaultSortBy: string,
     sortByOptions: ISortByOption[],
     displayModeOptions: DisplayMode[],
-    criterionOptions: CriterionOption[]
+    criterionOptions: CriterionOption[],
   ) {
     this.defaultSortBy = defaultSortBy;
     this.sortByOptions = [

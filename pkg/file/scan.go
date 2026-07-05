@@ -296,6 +296,7 @@ func (s *Scanner) onExistingFolder(ctx context.Context, f ScannedFile, existing 
 	if !entryModTime.Equal(existing.ModTime) {
 		existing.Path = f.Path
 		existing.ModTime = entryModTime
+		existing.BirthTime = f.BirthTime
 		update = true
 	}
 
@@ -787,6 +788,7 @@ func (s *Scanner) onExistingFile(ctx context.Context, f ScannedFile, existing mo
 	// #6326 - update basename in case it changed
 	base.Basename = f.Basename
 	base.ModTime = fileModTime
+	base.BirthTime = f.BirthTime
 	base.Size = f.Size
 	base.UpdatedAt = time.Now()
 
