@@ -291,9 +291,10 @@ func (s *Scanner) handleFolderRename(ctx context.Context, file ScannedFile) (*mo
 func (s *Scanner) onExistingFolder(ctx context.Context, f ScannedFile, existing *models.Folder) (*models.Folder, error) {
 	update := false
 
-	// update if mod time is changed
+	// update if mod time changed or if rescanning
 	entryModTime := f.ModTime
-	if !entryModTime.Equal(existing.ModTime) {
+	updated := !entryModTime.Equal(existing.ModTime)
+	if updated || s.Rescan {
 		existing.Path = f.Path
 		existing.ModTime = entryModTime
 		existing.BirthTime = f.BirthTime
