@@ -119,7 +119,7 @@ importers:
         specifier: ^17.0.2
         version: 17.0.2
       react-bootstrap:
-        specifier: ^1.6.6
+        specifier: ^1.6.8
         version: 1.6.8(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       react-datepicker:
         specifier: ^4.25.0
@@ -1663,8 +1663,8 @@ packages:
   '@types/videojs-seek-buttons@2.1.3':
     resolution: {integrity: sha512-zDCTkvkwpGtD3ZechuQn8MhvLBRMsSCkhnftbVFg9xKtHUSPBQ1lCPpGasav3m8P4+9cXZRhi8aw+Dsk2syKIQ==}
 
-  '@types/warning@3.0.3':
-    resolution: {integrity: sha512-D1XC7WK8K+zZEveUPY+cf4+kgauk8N4eHr/XIHXGlGYkHLud6hK9lYfZk1ry1TNh798cZUCgb6MqGEG8DkJt6Q==}
+  '@types/warning@3.0.4':
+    resolution: {integrity: sha512-CqN8MnISMwQbLJXO3doBAV4Yw9hx9/Pyr2rZ78+NfaCnhyRA/nKrpyk6E7mKw17ZOaQdLpK9GiUjrqLzBlN3sg==}
 
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
@@ -2064,9 +2064,6 @@ packages:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
     hasBin: true
-
-  csstype@3.1.3:
-    resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
@@ -5701,7 +5698,7 @@ snapshots:
     dependencies:
       '@types/video.js': 7.3.58
 
-  '@types/warning@3.0.3': {}
+  '@types/warning@3.0.4': {}
 
   '@types/webxr@0.5.24': {}
 
@@ -6139,8 +6136,6 @@ snapshots:
 
   cssesc@3.0.0: {}
 
-  csstype@3.1.3: {}
-
   csstype@3.2.3: {}
 
   dashjs@4.7.4:
@@ -6162,7 +6157,7 @@ snapshots:
 
   date-fns@2.30.0:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
 
   debounce@1.2.1: {}
 
@@ -6208,8 +6203,8 @@ snapshots:
 
   dom-helpers@5.2.1:
     dependencies:
-      '@babel/runtime': 7.29.2
-      csstype: 3.1.3
+      '@babel/runtime': 7.29.7
+      csstype: 3.2.3
 
   dom-walk@0.1.2: {}
 
@@ -7375,14 +7370,14 @@ snapshots:
 
   react-bootstrap@1.6.8(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       '@restart/context': 2.1.4(react@17.0.2)
       '@restart/hooks': 0.4.16(react@17.0.2)
       '@types/invariant': 2.2.37
       '@types/prop-types': 15.7.15
       '@types/react': 17.0.93
       '@types/react-transition-group': 4.4.12(@types/react@17.0.93)
-      '@types/warning': 3.0.3
+      '@types/warning': 3.0.4
       classnames: 2.5.1
       dom-helpers: 5.2.1
       invariant: 2.2.4
@@ -7452,10 +7447,10 @@ snapshots:
 
   react-overlays@5.2.1(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       '@popperjs/core': 2.11.8
       '@restart/hooks': 0.4.16(react@17.0.2)
-      '@types/warning': 3.0.3
+      '@types/warning': 3.0.4
       dom-helpers: 5.2.1
       prop-types: 15.8.1
       react: 17.0.2
@@ -7549,7 +7544,7 @@ snapshots:
 
   react-transition-group@4.4.5(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -8044,7 +8039,7 @@ snapshots:
 
   uncontrollable@7.2.1(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       '@types/react': 17.0.93
       invariant: 2.2.4
       react: 17.0.2
