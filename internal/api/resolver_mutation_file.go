@@ -199,13 +199,6 @@ func (r *mutationResolver) DeleteFiles(ctx context.Context, ids []string) (ret b
 				if err := file.Destroy(ctx, qb, ff, fileDeleter, deleteFileInZip); err != nil {
 					return fmt.Errorf("destroying file %s: %w", ff.Base().Path, err)
 				}
-
-				destroyedFiles = append(destroyedFiles, plugin.FileDestroyInput{
-					Path:        ff.Base().Path,
-					FileID:      int(ff.Base().ID),
-					DeletedFile: false,
-					Checksum:    ff.Base().Fingerprints.GetString(models.FingerprintTypeMD5),
-				})
 			}
 
 			const deleteFile = true
@@ -214,10 +207,10 @@ func (r *mutationResolver) DeleteFiles(ctx context.Context, ids []string) (ret b
 			}
 
 			destroyedFiles = append(destroyedFiles, plugin.FileDestroyInput{
-				Path:        path,
-				FileID:      int(fileID),
-				DeletedFile: true,
-				Checksum:    f[0].Base().Fingerprints.GetString(models.FingerprintTypeMD5),
+				Path:      path,
+				FileID:    int(fileID),
+				IsZipFile: true,
+				Checksum:  plugin.FileBestChecksum(f[0].Base().Fingerprints),
 			})
 		}
 
@@ -285,10 +278,10 @@ func (r *mutationResolver) DestroyFiles(ctx context.Context, ids []string) (ret 
 			}
 
 			destroyedFiles = append(destroyedFiles, plugin.FileDestroyInput{
-				Path:        path,
-				FileID:      int(fileID),
-				DeletedFile: false,
-				Checksum:    f[0].Base().Fingerprints.GetString(models.FingerprintTypeMD5),
+				Path:      path,
+				FileID:    int(fileID),
+				IsZipFile: true,
+				Checksum:  plugin.FileBestChecksum(f[0].Base().Fingerprints),
 			})
 		}
 
