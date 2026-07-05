@@ -25,7 +25,5 @@ func BirthTime(info fs.FileInfo) *time.Time {
 		return nil
 	}
 
-	t := time.Unix(stat.Btim.Sec, stat.Btim.Nsec)
-	t = t.Truncate(time.Second)
-	return &t
+	return birthTimeFromTimespec(stat.Btim.Sec, stat.Btim.Nsec)
 }
