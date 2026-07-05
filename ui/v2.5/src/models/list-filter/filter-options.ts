@@ -35,7 +35,7 @@ export class ListFilterOptions {
     defaultSortBy: string,
     sortByOptions: ISortByOption[],
     displayModeOptions: DisplayMode[],
-    criterionOptions: CriterionOption[],
+    criterionOptions: CriterionOption[]
   ) {
     this.defaultSortBy = defaultSortBy;
     this.sortByOptions = [
