@@ -23,9 +23,6 @@ func TestBirthTime(t *testing.T) {
 
 	bt := BirthTime(info)
 
-	// On Windows (build tag) we expect a non-nil result
-	// On other platforms this test file won't even compile with the windows tag,
-	// but we handle the nil case gracefully
 	if bt == nil {
 		t.Skip("birth time not available on this platform")
 	}
