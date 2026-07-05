@@ -85,7 +85,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
-    "@biomejs/biome": "2.5.0",
+    "@biomejs/biome": "2.5.2",
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/time": "^5.0.1",
     "@graphql-codegen/typescript": "^4.1.6",
