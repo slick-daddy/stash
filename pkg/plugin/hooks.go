@@ -48,3 +48,10 @@ type ImagesDestroyInput struct {
 	Checksum string `json:"checksum"`
 	Path     string `json:"path"`
 }
+
+type FileDestroyInput struct {
+	Path        string `json:"path"`
+	FileID      int    `json:"file_id"`
+	DeletedFile bool   `json:"deleted_file"`
+	Checksum    string `json:"checksum"`
+}
