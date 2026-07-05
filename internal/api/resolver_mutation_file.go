@@ -12,6 +12,8 @@ import (
 	"github.com/stashapp/stash/pkg/fsutil"
 	"github.com/stashapp/stash/pkg/logger"
 	"github.com/stashapp/stash/pkg/models"
+	"github.com/stashapp/stash/pkg/plugin"
+	"github.com/stashapp/stash/pkg/plugin/hook"
 	"github.com/stashapp/stash/pkg/session"
 	"github.com/stashapp/stash/pkg/sliceutil/stringslice"
 )
@@ -161,6 +163,9 @@ func (r *mutationResolver) DeleteFiles(ctx context.Context, ids []string) (ret b
 		FolderDestroyer: r.repository.Folder,
 	}
 
+	// collect file info for hooks before destruction
+	var destroyedFiles []plugin.FileDestroyInput
+
 	if err := r.withTxn(ctx, func(ctx context.Context) error {
 		qb := r.repository.File
 
@@ -194,12 +199,26 @@ func (r *mutationResolver) DeleteFiles(ctx context.Context, ids []string) (ret b
 				if err := file.Destroy(ctx, qb, ff, fileDeleter, deleteFileInZip); err != nil {
 					return fmt.Errorf("destroying file %s: %w", ff.Base().Path, err)
 				}
+
+				destroyedFiles = append(destroyedFiles, plugin.FileDestroyInput{
+					Path:        ff.Base().Path,
+					FileID:      int(ff.Base().ID),
+					DeletedFile: false,
+					Checksum:    ff.Base().Fingerprints.GetString(models.FingerprintTypeMD5),
+				})
 			}
 
 			const deleteFile = true
 			if err := destroyer.DestroyZip(ctx, f[0], fileDeleter, deleteFile); err != nil {
 				return fmt.Errorf("deleting file %s: %w", path, err)
 			}
+
+			destroyedFiles = append(destroyedFiles, plugin.FileDestroyInput{
+				Path:        path,
+				FileID:      int(fileID),
+				DeletedFile: true,
+				Checksum:    f[0].Base().Fingerprints.GetString(models.FingerprintTypeMD5),
+			})
 		}
 
 		return nil
@@ -210,6 +229,11 @@ func (r *mutationResolver) DeleteFiles(ctx context.Context, ids []string) (ret b
 
 	// perform the post-commit actions
 	fileDeleter.Commit()
+
+	// fire file destroy hooks after successful deletion
+	for _, input := range destroyedFiles {
+		r.hookExecutor.ExecutePostHooks(ctx, input.FileID, hook.FileDestroyPost, input, nil)
+	}
 
 	return true, nil
 }
@@ -224,6 +248,9 @@ func (r *mutationResolver) DestroyFiles(ctx context.Context, ids []string) (ret 
 		FileDestroyer:   r.repository.File,
 		FolderDestroyer: r.repository.Folder,
 	}
+
+	// collect file info for hooks before destruction
+	var destroyedFiles []plugin.FileDestroyInput
 
 	if err := r.withTxn(ctx, func(ctx context.Context) error {
 		qb := r.repository.File
@@ -256,11 +283,23 @@ func (r *mutationResolver) DestroyFiles(ctx context.Context, ids []string) (ret 
 			if err := destroyer.DestroyZip(ctx, f[0], nil, deleteFile); err != nil {
 				return fmt.Errorf("destroying file entry %s: %w", path, err)
 			}
+
+			destroyedFiles = append(destroyedFiles, plugin.FileDestroyInput{
+				Path:        path,
+				FileID:      int(fileID),
+				DeletedFile: false,
+				Checksum:    f[0].Base().Fingerprints.GetString(models.FingerprintTypeMD5),
+			})
 		}
 
 		return nil
 	}); err != nil {
 		return false, err
+	}
+
+	// fire file destroy hooks after successful destruction
+	for _, input := range destroyedFiles {
+		r.hookExecutor.ExecutePostHooks(ctx, input.FileID, hook.FileDestroyPost, input, nil)
 	}
 
 	return true, nil
