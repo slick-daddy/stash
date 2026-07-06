@@ -1,7 +1,10 @@
 package scraper
 
 import (
+	"fmt"
 	"path/filepath"
+	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/stashapp/stash/pkg/models"
@@ -11,6 +14,8 @@ type queryURLReplacements map[string]mappedRegexConfigs
 
 type queryURLParameters map[string]string
 
+var queryURLPlaceholderRE = regexp.MustCompile(`\{([^}]+)\}`)
+
 func queryURLParametersFromScene(scene *models.Scene) queryURLParameters {
 	ret := make(queryURLParameters)
 	ret["checksum"] = scene.Checksum
@@ -18,9 +23,11 @@ func queryURLParametersFromScene(scene *models.Scene) queryURLParameters {
 	ret["filename"] = filepath.Base(scene.Path)
 
 	// pull phash from primary file
-	phashFingerprints := scene.Files.Primary().Base().Fingerprints.Filter(models.FingerprintTypePhash)
-	if len(phashFingerprints) > 0 {
-		ret["phash"] = phashFingerprints[0].Value()
+	if primaryFile := scene.Files.Primary(); primaryFile != nil {
+		phashFingerprints := primaryFile.Base().Fingerprints.Filter(models.FingerprintTypePhash)
+		if len(phashFingerprints) > 0 {
+			ret["phash"] = phashFingerprints[0].Value()
+		}
 	}
 
 	if scene.Title != "" {
@@ -30,6 +37,41 @@ func queryURLParametersFromScene(scene *models.Scene) queryURLParameters {
 		ret["url"] = scene.URLs.List()[0]
 	}
 	return ret
+}
+
+func queryURLParameterCandidatesFromScene(scene *models.Scene, queryURL string, ty ScrapeContentType, definition Definition) ([]queryURLParameters, error) {
+	base := queryURLParametersFromScene(scene)
+	if !strings.Contains(queryURL, "{url}") {
+		return []queryURLParameters{base}, nil
+	}
+
+	urls := scene.URLs.List()
+	if len(urls) == 0 {
+		return []queryURLParameters{base}, nil
+	}
+
+	var ret []queryURLParameters
+	for _, u := range urls {
+		if definition.matchesURL(u, ty) {
+			candidate := base.clone()
+			candidate["url"] = u
+			ret = append(ret, candidate)
+		}
+	}
+
+	if len(ret) == 0 && definition.hasURLScrapers(ty) {
+		return nil, fmt.Errorf("no scene URLs match this scraper")
+	}
+
+	if len(ret) == 0 {
+		for _, u := range urls {
+			candidate := base.clone()
+			candidate["url"] = u
+			ret = append(ret, candidate)
+		}
+	}
+
+	return ret, nil
 }
 
 func queryURLParametersFromScrapedScene(scene models.ScrapedSceneInput) queryURLParameters {
@@ -106,6 +148,14 @@ func (p queryURLParameters) applyReplacements(r queryURLReplacements) {
 	}
 }
 
+func (p queryURLParameters) clone() queryURLParameters {
+	ret := make(queryURLParameters, len(p))
+	for k, v := range p {
+		ret[k] = v
+	}
+	return ret
+}
+
 func (p queryURLParameters) constructURL(url string) string {
 	ret := url
 	for k, v := range p {
@@ -113,6 +163,32 @@ func (p queryURLParameters) constructURL(url string) string {
 	}
 
 	return ret
+}
+
+func (p queryURLParameters) missingFields(url string) []string {
+	matches := queryURLPlaceholderRE.FindAllStringSubmatch(url, -1)
+	seen := make(map[string]struct{})
+	for _, match := range matches {
+		if _, ok := p[match[1]]; !ok {
+			seen[match[1]] = struct{}{}
+		}
+	}
+
+	ret := make([]string, 0, len(seen))
+	for field := range seen {
+		ret = append(ret, field)
+	}
+	sort.Strings(ret)
+	return ret
+}
+
+func (p queryURLParameters) constructURLOrError(url string) (string, error) {
+	missingFields := p.missingFields(url)
+	if len(missingFields) > 0 {
+		return "", fmt.Errorf("missing fields for queryURL: %s", strings.Join(missingFields, ", "))
+	}
+
+	return p.constructURL(url), nil
 }
 
 // replaceURL does a partial URL Replace ( only url parameter is used)

@@ -147,26 +147,42 @@ type xpathFragmentScraper struct {
 }
 
 func (s *xpathFragmentScraper) scrapeSceneByScene(ctx context.Context, scene *models.Scene) (*models.ScrapedScene, error) {
-	// construct the URL
-	queryURL := queryURLParametersFromScene(scene)
-	if s.definition.QueryURLReplacements != nil {
-		queryURL.applyReplacements(s.definition.QueryURLReplacements)
+	queryURLs, err := queryURLParameterCandidatesFromScene(scene, s.definition.QueryURL, ScrapeContentTypeScene, s.xpathScraper.definition)
+	if err != nil {
+		return nil, err
 	}
-	url := queryURL.constructURL(s.definition.QueryURL)
 
 	scraper, err := s.getXpathScraper(s.definition.Scraper)
 	if err != nil {
 		return nil, err
 	}
 
-	doc, err := s.loadURL(ctx, url)
+	var lastErr error
+	for _, queryURL := range queryURLs {
+		if s.definition.QueryURLReplacements != nil {
+			queryURL.applyReplacements(s.definition.QueryURLReplacements)
+		}
+		url, err := queryURL.constructURLOrError(s.definition.QueryURL)
+		if err != nil {
+			return nil, err
+		}
 
-	if err != nil {
-		return nil, err
+		doc, err := s.loadURL(ctx, url)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		q := s.getXPathQuery(doc, url)
+		ret, err := scraper.scrapeScene(ctx, q)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		return ret, nil
 	}
 
-	q := s.getXPathQuery(doc, url)
-	return scraper.scrapeScene(ctx, q)
+	return nil, lastErr
 }
 
 func (s *xpathFragmentScraper) scrapeByFragment(ctx context.Context, input Input) (ScrapedContent, error) {
@@ -186,7 +202,10 @@ func (s *xpathFragmentScraper) scrapeByFragment(ctx context.Context, input Input
 	if s.definition.QueryURLReplacements != nil {
 		queryURL.applyReplacements(s.definition.QueryURLReplacements)
 	}
-	url := queryURL.constructURL(s.definition.QueryURL)
+	url, err := queryURL.constructURLOrError(s.definition.QueryURL)
+	if err != nil {
+		return nil, err
+	}
 
 	scraper, err := s.getXpathScraper(s.definition.Scraper)
 	if err != nil {
@@ -209,7 +228,10 @@ func (s *xpathFragmentScraper) scrapeGalleryByGallery(ctx context.Context, galle
 	if s.definition.QueryURLReplacements != nil {
 		queryURL.applyReplacements(s.definition.QueryURLReplacements)
 	}
-	url := queryURL.constructURL(s.definition.QueryURL)
+	url, err := queryURL.constructURLOrError(s.definition.QueryURL)
+	if err != nil {
+		return nil, err
+	}
 
 	scraper, err := s.getXpathScraper(s.definition.Scraper)
 	if err != nil {
@@ -232,7 +254,10 @@ func (s *xpathFragmentScraper) scrapeImageByImage(ctx context.Context, image *mo
 	if s.definition.QueryURLReplacements != nil {
 		queryURL.applyReplacements(s.definition.QueryURLReplacements)
 	}
-	url := queryURL.constructURL(s.definition.QueryURL)
+	url, err := queryURL.constructURLOrError(s.definition.QueryURL)
+	if err != nil {
+		return nil, err
+	}
 
 	scraper, err := s.getXpathScraper(s.definition.Scraper)
 	if err != nil {
