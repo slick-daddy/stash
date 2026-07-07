@@ -1448,6 +1448,7 @@
   "scene_updated_at": "Scene Updated At",
   "scenes": "Scenes",
   "scenes_updated_at": "Scene Updated At",
+  "rating100": "Rating",
   "search_filter": {
     "edit_filter": "Edit Filter",
     "name": "Filter",

@@ -15,6 +15,7 @@ const sortByOptions = [
   "title",
   "seconds",
   "scene_id",
+  "rating100",
   "random",
   "scenes_updated_at",
 ].map(ListFilterOptions.createSortBy);
