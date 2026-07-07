@@ -85,7 +85,7 @@ func (r *sceneMarkerRowRecord) fromPartial(o models.SceneMarkerPartial) {
 	}
 	r.setFloat64("seconds", o.Seconds)
 	r.setNullFloat64("end_seconds", o.EndSeconds)
-	r.setInt("rating100", o.Rating100)
+	r.setNullInt("rating100", o.Rating100)
 	r.setInt("primary_tag_id", o.PrimaryTagID)
 	r.setInt("scene_id", o.SceneID)
 	r.setTimestamp("created_at", o.CreatedAt)
