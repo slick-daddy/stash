@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -66,7 +67,7 @@ func walkAndFilter(t *testing.T, root string, filter *StashIgnoreFilter) []strin
 
 		if filter.Accept(ctx, path, info, root, "") {
 			relPath, _ := filepath.Rel(root, path)
-			accepted = append(accepted, relPath)
+			accepted = append(accepted, strings.ReplaceAll(relPath, "\\", "/"))
 		} else if info.IsDir() {
 			// If directory is rejected, skip it.
 			return filepath.SkipDir
