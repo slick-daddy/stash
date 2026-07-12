@@ -1050,9 +1050,10 @@ func (qb *ImageStore) setImageSortAndPagination(q *queryBuilder, findFilter *mod
 		}
 
 		// translate sort field
-		if sort == "file_mod_time" {
+		switch sort {
+		case "file_mod_time":
 			sort = "mod_time"
-		} else if sort == "file_birth_time" {
+		case "file_birth_time":
 			sort = "birth_time"
 		}
 
