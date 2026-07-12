@@ -78,14 +78,6 @@ export const SceneDetailPanel: React.FC<ISceneDetailProps> = (props) => {
     <>
       <div className="row">
         <div className={`${sceneDetailsWidth} col-12 scene-details`}>
-          <h6>
-            <FormattedMessage id="created_at" />:{" "}
-            {TextUtils.formatDateTime(intl, props.scene.created_at)}{" "}
-          </h6>
-          <h6>
-            <FormattedMessage id="updated_at" />:{" "}
-            {TextUtils.formatDateTime(intl, props.scene.updated_at)}{" "}
-          </h6>
           {props.scene.files[0]?.birth_time && (
             <h6>
               <FormattedMessage id="file_birth_time" />:{" "}
@@ -95,6 +87,14 @@ export const SceneDetailPanel: React.FC<ISceneDetailProps> = (props) => {
               )}{" "}
             </h6>
           )}
+          <h6>
+            <FormattedMessage id="created_at" />:{" "}
+            {TextUtils.formatDateTime(intl, props.scene.created_at)}{" "}
+          </h6>
+          <h6>
+            <FormattedMessage id="updated_at" />:{" "}
+            {TextUtils.formatDateTime(intl, props.scene.updated_at)}{" "}
+          </h6>
           {props.scene.code && (
             <h6>
               <FormattedMessage id="scene_code" />: {props.scene.code}{" "}
