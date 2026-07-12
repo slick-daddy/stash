@@ -775,6 +775,16 @@ func (s *Scanner) onExistingFile(ctx context.Context, f ScannedFile, existing mo
 	forceRescan := s.Rescan
 
 	if !updated && !forceRescan {
+		// backfill birth_time for files created before migration 86
+		if base.BirthTime == nil && f.BirthTime != nil {
+			base.BirthTime = f.BirthTime
+			base.UpdatedAt = time.Now()
+			if err := s.Repository.WithTxn(ctx, func(ctx context.Context) error {
+				return s.Repository.File.Update(ctx, existing)
+			}); err != nil {
+				return nil, fmt.Errorf("backfilling birth_time for %q: %w", path, err)
+			}
+		}
 		return s.onUnchangedFile(ctx, f, existing)
 	}
 

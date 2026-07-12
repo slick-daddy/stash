@@ -88,6 +88,12 @@ export const GalleryDetailPanel: React.FC<IGalleryDetailProps> = ({
             <FormattedMessage id="updated_at" />:{" "}
             {TextUtils.formatDateTime(intl, gallery.updated_at)}{" "}
           </h6>
+          {gallery.files[0]?.birth_time && (
+            <h6>
+              <FormattedMessage id="file_birth_time" />:{" "}
+              {TextUtils.formatDateTime(intl, gallery.files[0].birth_time)}{" "}
+            </h6>
+          )}
           {gallery.code && (
             <h6>
               <FormattedMessage id="scene_code" />: {gallery.code}{" "}

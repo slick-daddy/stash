@@ -57,6 +57,15 @@ const FileInfoPanel: React.FC<IFileInfoPanelProps> = (
             />
           </TextField>
         )}
+        {props.file?.birth_time && (
+          <TextField id="file_birth_time">
+            <FormattedTime
+              dateStyle="medium"
+              timeStyle="medium"
+              value={props.file.birth_time}
+            />
+          </TextField>
+        )}
       </dl>
       {props.ofMany && props.onSetPrimaryFile && !props.primary && (
         <div>

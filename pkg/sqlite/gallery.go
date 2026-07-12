@@ -824,6 +824,7 @@ func (qb *GalleryStore) QueryCount(ctx context.Context, galleryFilter *models.Ga
 var gallerySortOptions = sortOptions{
 	"created_at",
 	"date",
+	"file_birth_time",
 	"file_count",
 	"file_mod_time",
 	"id",
@@ -924,6 +925,10 @@ func (qb *GalleryStore) setGallerySort(query *queryBuilder, findFilter *models.F
 		addFileTable()
 		addFolderTable()
 		query.sortAndPagination += fmt.Sprintf(" ORDER BY COALESCE(folders.path, '') || COALESCE(file_folder.path, '') || COALESCE(files.basename, '') COLLATE NATURAL_CI %s", direction)
+	case "file_birth_time":
+		sort = "birth_time"
+		addFileTable()
+		query.sortAndPagination += getSort(sort, direction, fileTable)
 	case "file_mod_time":
 		sort = "mod_time"
 		addFileTable()
