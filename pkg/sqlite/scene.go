@@ -1239,6 +1239,15 @@ func (qb *SceneStore) setSceneSort(query *queryBuilder, findFilter *models.FindF
 	}
 
 	direction := findFilter.GetDirection()
+
+	// translate sort field
+	switch sort {
+	case "file_mod_time":
+		sort = "mod_time"
+	case "file_birth_time":
+		sort = "birth_time"
+	}
+
 	switch sort {
 	case "movie_scene_number":
 		query.joinSort(groupsScenesTable, "", "scenes.id = groups_scenes.scene_id")
@@ -1274,12 +1283,7 @@ func (qb *SceneStore) setSceneSort(query *queryBuilder, findFilter *models.FindF
 		sort = "bit_rate"
 		addVideoFileTable()
 		query.sortAndPagination += getSort(sort, direction, videoFileTable)
-	case "file_mod_time":
-		sort = "mod_time"
-		addFileTable()
-		query.sortAndPagination += getSort(sort, direction, fileTable)
-	case "file_birth_time":
-		sort = "birth_time"
+	case "birth_time", "mod_time", "filesize":
 		addFileTable()
 		query.sortAndPagination += getSort(sort, direction, fileTable)
 	case "framerate":
@@ -1289,9 +1293,6 @@ func (qb *SceneStore) setSceneSort(query *queryBuilder, findFilter *models.FindF
 	case "resolution":
 		addVideoFileTable()
 		query.sortAndPagination += fmt.Sprintf(" ORDER BY MIN(%s.width, %s.height) %s", videoFileTable, videoFileTable, getSortDirection(direction))
-	case "filesize":
-		addFileTable()
-		query.sortAndPagination += getSort(sort, direction, fileTable)
 	case "duration":
 		addVideoFileTable()
 		query.sortAndPagination += getSort(sort, direction, videoFileTable)

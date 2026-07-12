@@ -42,7 +42,6 @@ fragment GalleryFileData on GalleryFile {
   path
   size
   mod_time
-  birth_time
   fingerprints {
     type
     value
