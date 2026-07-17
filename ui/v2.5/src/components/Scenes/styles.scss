@@ -190,8 +190,8 @@ textarea.scene-description {
   right: 0.7rem;
 }
 
-.scene-specs-overlay > span:not(:last-child) {
-  margin-right: 0.3rem;
+.scene-specs-overlay > span + span:not(.overlay-framerate) {
+  margin-left: 0.3rem;
 }
 
 .scene-interactive-speed-overlay {
