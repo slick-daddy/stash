@@ -19,7 +19,7 @@ import GenderIcon from "./GenderIcon";
 import { faLink, faTag } from "@fortawesome/free-solid-svg-icons";
 import { faInstagram, faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { RatingBanner } from "../Shared/RatingBanner";
-import { usePerformerUpdate } from "src/core/StashService";
+import { useFindScenes, usePerformerUpdate } from "src/core/StashService";
 import { ILabeledId } from "src/models/list-filter/types";
 import { FavoriteIcon } from "../Shared/FavoriteIcon";
 import { PatchComponent } from "src/patch";
@@ -49,14 +49,35 @@ interface IPerformerCardProps {
 const PerformerCardPopovers: React.FC<IPerformerCardProps> = PatchComponent(
   "PerformerCard.Popovers",
   ({ performer, extraCriteria }) => {
+    const filteredScenesFilter = React.useMemo(() => {
+      if (!extraCriteria?.scenes?.length) {
+        return;
+      }
+
+      const filter = NavUtils.makePerformerScenesFilter(
+        performer,
+        extraCriteria?.performer,
+        extraCriteria.scenes
+      );
+
+      if (filter) {
+        filter.itemsPerPage = 0;
+      }
+
+      return filter;
+    }, [extraCriteria, performer]);
+    const filteredScenesResult = useFindScenes(filteredScenesFilter);
+    const sceneCount =
+      filteredScenesResult.data?.findScenes.count ?? performer.scene_count;
+
     function maybeRenderScenesPopoverButton() {
-      if (!performer.scene_count) return;
+      if (!sceneCount) return;
 
       return (
         <PopoverCountButton
           className="scene-count"
           type="scene"
-          count={performer.scene_count}
+          count={sceneCount}
           url={NavUtils.makePerformerScenesUrl(
             performer,
             extraCriteria?.performer,
