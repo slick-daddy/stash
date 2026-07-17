@@ -57,7 +57,7 @@ func TestQueryURLParameterCandidatesFromSceneErrorsWhenNoURLsMatch(t *testing.T)
 		t.Fatal("expected error")
 	}
 
-	want := "no scene URLs match this scraper"
+	want := "no URLs match this scraper"
 	if err.Error() != want {
 		t.Fatalf("expected %q, got %q", want, err.Error())
 	}
@@ -67,6 +67,48 @@ func TestQueryURLParameterCandidatesFromSceneUsesAllURLsWithoutURLScrapers(t *te
 	scene := makeQueryURLScene("https://example.com/1", "https://example.com/2")
 
 	candidates, err := queryURLParameterCandidatesFromScene(scene, "{url}", ScrapeContentTypeScene, Definition{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var got []string
+	for _, candidate := range candidates {
+		got = append(got, candidate["url"])
+	}
+	want := []string{"https://example.com/1", "https://example.com/2"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("expected %v, got %v", want, got)
+	}
+}
+
+func TestQueryURLParameterCandidatesFromGalleryFiltersMatchingURLs(t *testing.T) {
+	gallery := &models.Gallery{
+		Files: models.NewRelatedFiles(nil),
+		URLs:  models.NewRelatedStrings([]string{"https://example.com/1", "https://studiox.com/update/456"}),
+	}
+	definition := Definition{
+		GalleryByURL: []*ByURLDefinition{{URL: []string{"studiox.com/update"}}},
+	}
+
+	candidates, err := queryURLParameterCandidatesFromGallery(gallery, "{url}", ScrapeContentTypeGallery, definition)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(candidates) != 1 {
+		t.Fatalf("expected 1 candidate, got %d", len(candidates))
+	}
+	if got := candidates[0]["url"]; got != "https://studiox.com/update/456" {
+		t.Fatalf("expected matching URL, got %q", got)
+	}
+}
+
+func TestQueryURLParameterCandidatesFromImageReturnsAllURLs(t *testing.T) {
+	image := &models.Image{
+		Files: models.NewRelatedFiles(nil),
+		URLs:  models.NewRelatedStrings([]string{"https://example.com/1", "https://example.com/2"}),
+	}
+
+	candidates, err := queryURLParameterCandidatesFromImage(image, "{url}", ScrapeContentTypeImage, Definition{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,6 +151,55 @@ func TestQueryURLParametersFromGalleryFilelessReportsMissingFields(t *testing.T)
 	_, err := params.constructURLOrError("https://example.test/{checksum}")
 	if err == nil {
 		t.Fatal("expected missing fields error for fileless gallery")
+	}
+}
+
+func TestMissingFieldsDeduplicates(t *testing.T) {
+	params := queryURLParameters{"title": "Example"}
+
+	missing := params.missingFields("https://example.test/{url}/{url}/{checksum}")
+	want := []string{"checksum", "url"}
+	if !reflect.DeepEqual(missing, want) {
+		t.Fatalf("expected %v, got %v", want, missing)
+	}
+}
+
+func TestMissingFieldsEmptyURL(t *testing.T) {
+	params := queryURLParameters{}
+	missing := params.missingFields("")
+	if len(missing) != 0 {
+		t.Fatalf("expected no missing fields for empty url, got %v", missing)
+	}
+}
+
+func TestHasURLScrapers(t *testing.T) {
+	tests := []struct {
+		name     string
+		def      Definition
+		ty       ScrapeContentType
+		expected bool
+	}{
+		{"scene with url scrapers", Definition{SceneByURL: []*ByURLDefinition{{}}}, ScrapeContentTypeScene, true},
+		{"scene without url scrapers", Definition{}, ScrapeContentTypeScene, false},
+		{"gallery with url scrapers", Definition{GalleryByURL: []*ByURLDefinition{{}}}, ScrapeContentTypeGallery, true},
+		{"gallery without url scrapers", Definition{}, ScrapeContentTypeGallery, false},
+		{"image with url scrapers", Definition{ImageByURL: []*ByURLDefinition{{}}}, ScrapeContentTypeImage, true},
+		{"image without url scrapers", Definition{}, ScrapeContentTypeImage, false},
+		{"performer with url scrapers", Definition{PerformerByURL: []*ByURLDefinition{{}}}, ScrapeContentTypePerformer, true},
+		{"performer without url scrapers", Definition{}, ScrapeContentTypePerformer, false},
+		{"movie with url scrapers", Definition{MovieByURL: []*ByURLDefinition{{}}}, ScrapeContentTypeMovie, true},
+		{"group with url scrapers", Definition{GroupByURL: []*ByURLDefinition{{}}}, ScrapeContentTypeGroup, true},
+		{"group with movie scrapers", Definition{MovieByURL: []*ByURLDefinition{{}}}, ScrapeContentTypeGroup, true},
+		{"group without url scrapers", Definition{}, ScrapeContentTypeGroup, false},
+		{"unknown type", Definition{}, ScrapeContentType("unknown"), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.def.hasURLScrapers(tt.ty); got != tt.expected {
+				t.Fatalf("hasURLScrapers(%v) = %v, want %v", tt.ty, got, tt.expected)
+			}
+		})
 	}
 }
 

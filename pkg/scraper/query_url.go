@@ -46,13 +46,11 @@ func queryURLParametersFromScene(scene *models.Scene) queryURLParameters {
 	return ret
 }
 
-func queryURLParameterCandidatesFromScene(scene *models.Scene, queryURL string, ty ScrapeContentType, definition Definition) ([]queryURLParameters, error) {
-	base := queryURLParametersFromScene(scene)
+func urlCandidateParams(base queryURLParameters, urls []string, queryURL string, ty ScrapeContentType, definition Definition) ([]queryURLParameters, error) {
 	if !strings.Contains(queryURL, "{url}") {
 		return []queryURLParameters{base}, nil
 	}
 
-	urls := scene.URLs.List()
 	if len(urls) == 0 {
 		return []queryURLParameters{base}, nil
 	}
@@ -67,7 +65,7 @@ func queryURLParameterCandidatesFromScene(scene *models.Scene, queryURL string, 
 	}
 
 	if len(ret) == 0 && definition.hasURLScrapers(ty) {
-		return nil, fmt.Errorf("no scene URLs match this scraper")
+		return nil, fmt.Errorf("no URLs match this scraper")
 	}
 
 	if len(ret) == 0 {
@@ -79,6 +77,21 @@ func queryURLParameterCandidatesFromScene(scene *models.Scene, queryURL string, 
 	}
 
 	return ret, nil
+}
+
+func queryURLParameterCandidatesFromScene(scene *models.Scene, queryURL string, ty ScrapeContentType, definition Definition) ([]queryURLParameters, error) {
+	base := queryURLParametersFromScene(scene)
+	return urlCandidateParams(base, scene.URLs.List(), queryURL, ty, definition)
+}
+
+func queryURLParameterCandidatesFromGallery(gallery *models.Gallery, queryURL string, ty ScrapeContentType, definition Definition) ([]queryURLParameters, error) {
+	base := queryURLParametersFromGallery(gallery)
+	return urlCandidateParams(base, gallery.URLs.List(), queryURL, ty, definition)
+}
+
+func queryURLParameterCandidatesFromImage(image *models.Image, queryURL string, ty ScrapeContentType, definition Definition) ([]queryURLParameters, error) {
+	base := queryURLParametersFromImage(image)
+	return urlCandidateParams(base, image.URLs.List(), queryURL, ty, definition)
 }
 
 func queryURLParametersFromScrapedScene(scene models.ScrapedSceneInput) queryURLParameters {
