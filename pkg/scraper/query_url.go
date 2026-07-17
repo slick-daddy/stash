@@ -18,9 +18,16 @@ var queryURLPlaceholderRE = regexp.MustCompile(`\{([^}]+)\}`)
 
 func queryURLParametersFromScene(scene *models.Scene) queryURLParameters {
 	ret := make(queryURLParameters)
-	ret["checksum"] = scene.Checksum
-	ret["oshash"] = scene.OSHash
-	ret["filename"] = filepath.Base(scene.Path)
+
+	if scene.Checksum != "" {
+		ret["checksum"] = scene.Checksum
+	}
+	if scene.OSHash != "" {
+		ret["oshash"] = scene.OSHash
+	}
+	if scene.Path != "" {
+		ret["filename"] = filepath.Base(scene.Path)
+	}
 
 	// pull phash from primary file
 	if primaryFile := scene.Files.Primary(); primaryFile != nil {
@@ -105,7 +112,10 @@ func queryURLParameterFromURL(url string) queryURLParameters {
 
 func queryURLParametersFromGallery(gallery *models.Gallery) queryURLParameters {
 	ret := make(queryURLParameters)
-	ret["checksum"] = gallery.PrimaryChecksum()
+
+	if checksum := gallery.PrimaryChecksum(); checksum != "" {
+		ret["checksum"] = checksum
+	}
 
 	if gallery.Path != "" {
 		ret["filename"] = filepath.Base(gallery.Path)
@@ -123,7 +133,10 @@ func queryURLParametersFromGallery(gallery *models.Gallery) queryURLParameters {
 
 func queryURLParametersFromImage(image *models.Image) queryURLParameters {
 	ret := make(queryURLParameters)
-	ret["checksum"] = image.Checksum
+
+	if image.Checksum != "" {
+		ret["checksum"] = image.Checksum
+	}
 
 	if image.Path != "" {
 		ret["filename"] = filepath.Base(image.Path)

@@ -80,3 +80,47 @@ func TestQueryURLParameterCandidatesFromSceneUsesAllURLsWithoutURLScrapers(t *te
 		t.Fatalf("expected %v, got %v", want, got)
 	}
 }
+
+func TestQueryURLParametersFromSceneFilelessReportsMissingFields(t *testing.T) {
+	scene := &models.Scene{
+		Files: models.NewRelatedVideoFiles(nil),
+		URLs:  models.NewRelatedStrings([]string{}),
+	}
+	params := queryURLParametersFromScene(scene)
+
+	_, err := params.constructURLOrError("https://example.test/{checksum}/{filename}/{oshash}")
+	if err == nil {
+		t.Fatal("expected missing fields error for fileless scene")
+	}
+
+	want := "missing fields for queryURL: checksum, filename, oshash"
+	if err.Error() != want {
+		t.Fatalf("expected %q, got %q", want, err.Error())
+	}
+}
+
+func TestQueryURLParametersFromGalleryFilelessReportsMissingFields(t *testing.T) {
+	gallery := &models.Gallery{
+		Files: models.NewRelatedFiles(nil),
+		URLs:  models.NewRelatedStrings([]string{}),
+	}
+	params := queryURLParametersFromGallery(gallery)
+
+	_, err := params.constructURLOrError("https://example.test/{checksum}")
+	if err == nil {
+		t.Fatal("expected missing fields error for fileless gallery")
+	}
+}
+
+func TestQueryURLParametersFromImageFilelessReportsMissingFields(t *testing.T) {
+	image := &models.Image{
+		Files: models.NewRelatedFiles(nil),
+		URLs:  models.NewRelatedStrings([]string{}),
+	}
+	params := queryURLParametersFromImage(image)
+
+	_, err := params.constructURLOrError("https://example.test/{checksum}")
+	if err == nil {
+		t.Fatal("expected missing fields error for fileless image")
+	}
+}
