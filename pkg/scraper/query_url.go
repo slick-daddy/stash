@@ -195,7 +195,7 @@ func (p queryURLParameters) missingFields(url string) []string {
 	matches := queryURLPlaceholderRE.FindAllStringSubmatch(url, -1)
 	seen := make(map[string]struct{})
 	for _, match := range matches {
-		if _, ok := p[match[1]]; !ok {
+		if v, ok := p[match[1]]; !ok || v == "" {
 			seen[match[1]] = struct{}{}
 		}
 	}
