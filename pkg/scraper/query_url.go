@@ -65,7 +65,7 @@ func urlCandidateParams(base queryURLParameters, urls []string, queryURL string,
 	}
 
 	if len(ret) == 0 && definition.hasURLScrapers(ty) {
-		return nil, fmt.Errorf("no URLs match this scraper")
+		return nil, fmt.Errorf("no %s URLs match this scraper", strings.ToLower(string(ty)))
 	}
 
 	if len(ret) == 0 {

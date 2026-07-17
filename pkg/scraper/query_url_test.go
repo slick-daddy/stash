@@ -57,7 +57,7 @@ func TestQueryURLParameterCandidatesFromSceneErrorsWhenNoURLsMatch(t *testing.T)
 		t.Fatal("expected error")
 	}
 
-	want := "no URLs match this scraper"
+	want := "no scene URLs match this scraper"
 	if err.Error() != want {
 		t.Fatalf("expected %q, got %q", want, err.Error())
 	}
