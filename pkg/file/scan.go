@@ -790,7 +790,6 @@ func (s *Scanner) onExistingFile(ctx context.Context, f ScannedFile, existing mo
 		logger.Infof("%s has been updated: rescanning", path)
 	}
 
-	// #6326 - update basename in case it changed
 	base.Basename = f.Basename
 	base.ModTime = fileModTime
 	base.Size = f.Size
