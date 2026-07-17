@@ -172,6 +172,60 @@ func TestMissingFieldsEmptyURL(t *testing.T) {
 	}
 }
 
+// TestMissingFieldsReportsEmptyValueAsMissing verifies that a parameter
+// present in the map but set to an empty string is treated as missing.
+// This guards against malformed URLs when a value is emptied via
+// applyReplacements or other map manipulation before validation.
+func TestMissingFieldsReportsEmptyValueAsMissing(t *testing.T) {
+	params := queryURLParameters{"checksum": ""}
+
+	missing := params.missingFields("https://example.test/{checksum}")
+	want := []string{"checksum"}
+	if !reflect.DeepEqual(missing, want) {
+		t.Fatalf("expected %v, got %v", want, missing)
+	}
+
+	// constructURLOrError must also reject the empty value
+	_, err := params.constructURLOrError("https://example.test/{checksum}")
+	if err == nil {
+		t.Fatal("expected missing fields error for empty checksum value")
+	}
+	wantErr := "missing fields for queryURL: checksum"
+	if err.Error() != wantErr {
+		t.Fatalf("expected %q, got %q", wantErr, err.Error())
+	}
+}
+
+// TestMissingFieldsAfterReplacementReportsEmptyValueAsMissing verifies
+// that a non-empty parameter value reduced to "" by applyReplacements is
+// caught as missing by missingFields and rejected by constructURLOrError.
+func TestMissingFieldsAfterReplacementReportsEmptyValueAsMissing(t *testing.T) {
+	params := queryURLParameters{"checksum": "abc123"}
+	replacements := queryURLReplacements{
+		"checksum": mappedRegexConfigs{{Regex: ".*", With: ""}},
+	}
+	params.applyReplacements(replacements)
+
+	if got := params["checksum"]; got != "" {
+		t.Fatalf("expected replacement to empty checksum, got %q", got)
+	}
+
+	missing := params.missingFields("https://example.test/{checksum}")
+	want := []string{"checksum"}
+	if !reflect.DeepEqual(missing, want) {
+		t.Fatalf("expected %v, got %v", want, missing)
+	}
+
+	_, err := params.constructURLOrError("https://example.test/{checksum}")
+	if err == nil {
+		t.Fatal("expected missing fields error after replacement emptied checksum")
+	}
+	wantErr := "missing fields for queryURL: checksum"
+	if err.Error() != wantErr {
+		t.Fatalf("expected %q, got %q", wantErr, err.Error())
+	}
+}
+
 func TestHasURLScrapers(t *testing.T) {
 	tests := []struct {
 		name     string
