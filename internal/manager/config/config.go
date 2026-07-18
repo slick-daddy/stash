@@ -237,19 +237,7 @@ const (
 	WallPlayback        = "wall_playback"
 	defaultWallPlayback = "video"
 
-	// Image lightbox options
-	legacyImageLightboxSlideshowDelay       = "slideshow_delay"
-	ImageLightboxSlideshowDelay             = "image_lightbox.slideshow_delay"
-	ImageLightboxDisplayModeKey             = "image_lightbox.display_mode"
-	ImageLightboxScaleUp                    = "image_lightbox.scale_up"
-	ImageLightboxResetZoomOnNav             = "image_lightbox.reset_zoom_on_nav"
-	ImageLightboxScrollModeKey              = "image_lightbox.scroll_mode"
-	ImageLightboxScrollAttemptsBeforeChange = "image_lightbox.scroll_attempts_before_change"
-	ImageLightboxDisableAnimation           = "image_lightbox.disable_animation"
-
 	UI = "ui"
-
-	defaultImageLightboxSlideshowDelay = 5
 
 	DisableDropdownCreatePerformer = "disable_dropdown_create.performer"
 	DisableDropdownCreateStudio    = "disable_dropdown_create.studio"
@@ -1386,61 +1374,6 @@ func (i *Config) GetContinuePlaylistDefault() bool {
 
 func (i *Config) GetShowStudioAsText() bool {
 	return i.getBool(ShowStudioAsText)
-}
-
-func (i *Config) getSlideshowDelay() int {
-	// assume have lock
-
-	ret := defaultImageLightboxSlideshowDelay
-	v := i.forKey(ImageLightboxSlideshowDelay)
-	if v.Exists(ImageLightboxSlideshowDelay) {
-		ret = v.Int(ImageLightboxSlideshowDelay)
-	} else {
-		// fallback to old location
-		v := i.forKey(legacyImageLightboxSlideshowDelay)
-		if v.Exists(legacyImageLightboxSlideshowDelay) {
-			ret = v.Int(legacyImageLightboxSlideshowDelay)
-		}
-	}
-
-	return ret
-}
-
-func (i *Config) GetImageLightboxOptions() ConfigImageLightboxResult {
-	i.RLock()
-	defer i.RUnlock()
-
-	delay := i.getSlideshowDelay()
-
-	ret := ConfigImageLightboxResult{
-		SlideshowDelay: &delay,
-	}
-
-	if v := i.with(ImageLightboxDisplayModeKey); v != nil {
-		mode := ImageLightboxDisplayMode(v.String(ImageLightboxDisplayModeKey))
-		ret.DisplayMode = &mode
-	}
-	if v := i.with(ImageLightboxScaleUp); v != nil {
-		value := v.Bool(ImageLightboxScaleUp)
-		ret.ScaleUp = &value
-	}
-	if v := i.with(ImageLightboxResetZoomOnNav); v != nil {
-		value := v.Bool(ImageLightboxResetZoomOnNav)
-		ret.ResetZoomOnNav = &value
-	}
-	if v := i.with(ImageLightboxScrollModeKey); v != nil {
-		mode := ImageLightboxScrollMode(v.String(ImageLightboxScrollModeKey))
-		ret.ScrollMode = &mode
-	}
-	if v := i.with(ImageLightboxScrollAttemptsBeforeChange); v != nil {
-		ret.ScrollAttemptsBeforeChange = v.Int(ImageLightboxScrollAttemptsBeforeChange)
-	}
-	if v := i.with(ImageLightboxDisableAnimation); v != nil {
-		value := v.Bool(ImageLightboxDisableAnimation)
-		ret.DisableAnimation = &value
-	}
-
-	return ret
 }
 
 func (i *Config) GetDisableDropdownCreate() *ConfigDisableDropdownCreate {

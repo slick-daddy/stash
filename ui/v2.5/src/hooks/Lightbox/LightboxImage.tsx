@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import * as GQL from "src/core/generated-graphql";
 
 const ZOOM_STEP = 1.1;
 const ZOOM_FACTOR = 700;
@@ -17,7 +16,7 @@ function calculateDefaultZoom(
   height: number,
   boundWidth: number,
   boundHeight: number,
-  displayMode: GQL.ImageLightboxDisplayMode,
+  displayMode: string,
   scaleUp: boolean
 ) {
   // set initial zoom level based on options
@@ -25,7 +24,7 @@ function calculateDefaultZoom(
   let yZoom: number;
   let newZoom = 1;
   switch (displayMode) {
-    case GQL.ImageLightboxDisplayMode.FitXy:
+    case "FIT_XY":
       xZoom = boundWidth / width;
       yZoom = boundHeight / height;
 
@@ -35,14 +34,14 @@ function calculateDefaultZoom(
       }
       newZoom = Math.min(xZoom, yZoom);
       break;
-    case GQL.ImageLightboxDisplayMode.FitX:
+    case "FIT_X":
       newZoom = boundWidth / width;
 
       if (!scaleUp) {
         newZoom = Math.min(newZoom, 1);
       }
       break;
-    case GQL.ImageLightboxDisplayMode.Original:
+    case "ORIGINAL":
       newZoom = 1;
       break;
   }
@@ -54,9 +53,9 @@ interface IProps {
   src: string;
   width: number;
   height: number;
-  displayMode: GQL.ImageLightboxDisplayMode;
+  displayMode: string;
   scaleUp: boolean;
-  scrollMode: GQL.ImageLightboxScrollMode;
+  scrollMode: string;
   resetPosition?: boolean;
   zoom: number;
   scrollAttemptsBeforeChange: number;
@@ -194,7 +193,7 @@ export const LightboxImage: React.FC<IProps> = ({
       const newPositionX = Math.min((boxWidth - imageWidth) / 2, 0);
       let newPositionY: number;
 
-      if (displayMode === GQL.ImageLightboxDisplayMode.FitXy) {
+      if (displayMode === "FIT_XY") {
         newPositionY = Math.min((boxHeight - imageHeight) / 2, 0);
       } else {
         // otherwise, align image with container
@@ -279,10 +278,10 @@ export const LightboxImage: React.FC<IProps> = ({
   function getScrollMode(ev: React.WheelEvent) {
     if (ev.shiftKey) {
       switch (scrollMode) {
-        case GQL.ImageLightboxScrollMode.Zoom:
-          return GQL.ImageLightboxScrollMode.PanY;
-        case GQL.ImageLightboxScrollMode.PanY:
-          return GQL.ImageLightboxScrollMode.Zoom;
+        case "ZOOM":
+          return "PAN_Y";
+        case "PAN_Y":
+          return "ZOOM";
       }
     }
 
@@ -291,7 +290,7 @@ export const LightboxImage: React.FC<IProps> = ({
 
   function onContainerScroll(ev: React.WheelEvent) {
     // don't zoom if mouse isn't over image
-    if (getScrollMode(ev) === GQL.ImageLightboxScrollMode.PanY) {
+    if (getScrollMode(ev) === "PAN_Y") {
       onImageScroll(ev);
     }
   }
@@ -391,7 +390,7 @@ export const LightboxImage: React.FC<IProps> = ({
         Math.abs(firstDeltaY) < SCROLL_INFINITE_THRESHOLD);
 
     switch (getScrollMode(ev)) {
-      case GQL.ImageLightboxScrollMode.Zoom: {
+      case "ZOOM": {
         let percent: number;
         if (infinite) {
           percent = 1 - ev.deltaY / ZOOM_FACTOR;
@@ -401,7 +400,7 @@ export const LightboxImage: React.FC<IProps> = ({
         setZoom(zoom * percent);
         break;
       }
-      case GQL.ImageLightboxScrollMode.PanY:
+      case "PAN_Y":
         onImageScrollPanY(ev, infinite);
         break;
     }

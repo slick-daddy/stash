@@ -28,7 +28,6 @@ import {
   mutateImageResetO,
   useImageUpdate,
 } from "src/core/StashService";
-import * as GQL from "src/core/generated-graphql";
 import { useInterfaceLocalForage } from "../LocalForage";
 import { imageLightboxDisplayModeIntlMap } from "src/core/enums";
 import { ILightboxImage, IChapter } from "./types";
@@ -169,7 +168,7 @@ export const LightboxComponent: React.FC<IProps> = ({
 
   const lightboxSettings = interfaceLocalForage.data?.imageLightbox;
 
-  function setLightboxSettings(v: Partial<GQL.ConfigImageLightboxInput>) {
+  function setLightboxSettings(v: Record<string, unknown>) {
     setInterfaceLocalForage((prev) => {
       return {
         ...prev,
@@ -189,12 +188,12 @@ export const LightboxComponent: React.FC<IProps> = ({
     setLightboxSettings({ resetZoomOnNav: v });
   }
 
-  function setScrollMode(v: GQL.ImageLightboxScrollMode) {
+  function setScrollMode(v: string) {
     setLightboxSettings({ scrollMode: v });
   }
 
-  const configuredDelay = config?.interface.imageLightbox.slideshowDelay
-    ? config.interface.imageLightbox.slideshowDelay * SECONDS_TO_MS
+  const configuredDelay = config?.ui?.imageLightbox?.slideshowDelay
+    ? config.ui.imageLightbox.slideshowDelay * SECONDS_TO_MS
     : undefined;
 
   const savedDelay = lightboxSettings?.slideshowDelay
@@ -206,37 +205,35 @@ export const LightboxComponent: React.FC<IProps> = ({
 
   const scrollAttemptsBeforeChange = Math.max(
     0,
-    config?.interface.imageLightbox.scrollAttemptsBeforeChange ?? 0
+    config?.ui?.imageLightbox?.scrollAttemptsBeforeChange ?? 0
   );
 
-  const disableAnimation = config?.interface.imageLightbox.disableAnimation;
+  const disableAnimation = config?.ui?.imageLightbox?.disableAnimation;
 
   function setSlideshowDelay(v: number) {
     setLightboxSettings({ slideshowDelay: v });
   }
 
   const scaleUp =
-    lightboxSettings?.scaleUp ??
-    config?.interface.imageLightbox.scaleUp ??
-    false;
+    lightboxSettings?.scaleUp ?? config?.ui?.imageLightbox?.scaleUp ?? false;
 
   const resetZoomOnNav =
     lightboxSettings?.resetZoomOnNav ??
-    config?.interface.imageLightbox.resetZoomOnNav ??
+    config?.ui?.imageLightbox?.resetZoomOnNav ??
     false;
 
   const scrollMode =
     lightboxSettings?.scrollMode ??
-    config?.interface.imageLightbox.scrollMode ??
-    GQL.ImageLightboxScrollMode.Zoom;
+    config?.ui?.imageLightbox?.scrollMode ??
+    "ZOOM";
 
   const displayMode =
     lightboxSettings?.displayMode ??
-    config?.interface.imageLightbox.displayMode ??
-    GQL.ImageLightboxDisplayMode.FitXy;
+    config?.ui?.imageLightbox?.displayMode ??
+    "FIT_XY";
   const oldDisplayMode = useRef(displayMode);
 
-  function setDisplayMode(v: GQL.ImageLightboxDisplayMode) {
+  function setDisplayMode(v: string) {
     setLightboxSettings({ displayMode: v });
   }
 
@@ -646,9 +643,7 @@ export const LightboxComponent: React.FC<IProps> = ({
           <Col xs={8}>
             <Form.Control
               as="select"
-              onChange={(e) =>
-                setDisplayMode(e.target.value as GQL.ImageLightboxDisplayMode)
-              }
+              onChange={(e) => setDisplayMode(e.target.value)}
               value={displayMode}
               className="btn-secondary mx-1 mb-1"
             >
@@ -673,7 +668,7 @@ export const LightboxComponent: React.FC<IProps> = ({
                   id: "dialogs.lightbox.scale_up.label",
                 })}
                 checked={scaleUp}
-                disabled={displayMode === GQL.ImageLightboxDisplayMode.Original}
+                disabled={displayMode === "ORIGINAL"}
                 onChange={(v) => setScaleUp(v.currentTarget.checked)}
               />
             </Col>
@@ -708,24 +703,16 @@ export const LightboxComponent: React.FC<IProps> = ({
             <Col xs={8}>
               <Form.Control
                 as="select"
-                onChange={(e) =>
-                  setScrollMode(e.target.value as GQL.ImageLightboxScrollMode)
-                }
+                onChange={(e) => setScrollMode(e.target.value)}
                 value={scrollMode}
                 className="btn-secondary mx-1 mb-1"
               >
-                <option
-                  value={GQL.ImageLightboxScrollMode.Zoom}
-                  key={GQL.ImageLightboxScrollMode.Zoom}
-                >
+                <option value="ZOOM" key="ZOOM">
                   {intl.formatMessage({
                     id: "dialogs.lightbox.scroll_mode.zoom",
                   })}
                 </option>
-                <option
-                  value={GQL.ImageLightboxScrollMode.PanY}
-                  key={GQL.ImageLightboxScrollMode.PanY}
-                >
+                <option value="PAN_Y" key="PAN_Y">
                   {intl.formatMessage({
                     id: "dialogs.lightbox.scroll_mode.pan_y",
                   })}

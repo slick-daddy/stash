@@ -76,6 +76,16 @@ export interface IUIConfig {
   // if true the slideshow autostarts when opening a gallery's lightbox from the galleries page
   autostartGallerySlideshow?: boolean;
 
+  imageLightbox?: {
+    slideshowDelay?: number;
+    displayMode?: string;
+    scaleUp?: boolean;
+    resetZoomOnNav?: boolean;
+    scrollMode?: string;
+    scrollAttemptsBeforeChange?: number;
+    disableAnimation?: boolean;
+  };
+
   // if true the fullscreen mobile media auto-rotate option will be disabled
   disableMobileMediaAutoRotateEnabled?: boolean;
 

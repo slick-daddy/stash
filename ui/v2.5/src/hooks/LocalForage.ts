@@ -2,7 +2,6 @@ import localForage from "localforage";
 import isEqual from "lodash-es/isEqual";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { View } from "src/components/List/views";
-import { ConfigImageLightboxInput } from "src/core/generated-graphql";
 
 interface IInterfaceQueryConfig {
   filter: string;
@@ -16,9 +15,19 @@ export interface IViewConfig {
 
 type IQueryConfig = Record<string, IInterfaceQueryConfig>;
 
+interface ILightboxConfig {
+  slideshowDelay?: number;
+  displayMode?: string;
+  scaleUp?: boolean;
+  resetZoomOnNav?: boolean;
+  scrollMode?: string;
+  scrollAttemptsBeforeChange?: number;
+  disableAnimation?: boolean;
+}
+
 interface IInterfaceConfig {
   queryConfig: IQueryConfig;
-  imageLightbox: ConfigImageLightboxInput;
+  imageLightbox: ILightboxConfig;
   // Partial is required because using View makes the key mandatory
   viewConfig: Partial<Record<View, IViewConfig>>;
 }

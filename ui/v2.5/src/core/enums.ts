@@ -1,19 +1,20 @@
-import {
-  ImageLightboxDisplayMode,
-  ImageLightboxScrollMode,
-} from "../core/generated-graphql";
+type ImageLightboxDisplayMode = "ORIGINAL" | "FIT_XY" | "FIT_X";
+type ImageLightboxScrollMode = "ZOOM" | "PAN_Y";
 
 export const imageLightboxDisplayModeIntlMap = new Map<
   ImageLightboxDisplayMode,
   string
 >([
-  [ImageLightboxDisplayMode.Original, "dialogs.lightbox.display_mode.original"],
   [
-    ImageLightboxDisplayMode.FitXy,
+    "ORIGINAL" as ImageLightboxDisplayMode,
+    "dialogs.lightbox.display_mode.original",
+  ],
+  [
+    "FIT_XY" as ImageLightboxDisplayMode,
     "dialogs.lightbox.display_mode.fit_to_screen",
   ],
   [
-    ImageLightboxDisplayMode.FitX,
+    "FIT_X" as ImageLightboxDisplayMode,
     "dialogs.lightbox.display_mode.fit_horizontally",
   ],
 ]);
@@ -22,6 +23,6 @@ export const imageLightboxScrollModeIntlMap = new Map<
   ImageLightboxScrollMode,
   string
 >([
-  [ImageLightboxScrollMode.Zoom, "dialogs.lightbox.scroll_mode.zoom"],
-  [ImageLightboxScrollMode.PanY, "dialogs.lightbox.scroll_mode.pan_y"],
+  ["ZOOM" as ImageLightboxScrollMode, "dialogs.lightbox.scroll_mode.zoom"],
+  ["PAN_Y" as ImageLightboxScrollMode, "dialogs.lightbox.scroll_mode.pan_y"],
 ]);
