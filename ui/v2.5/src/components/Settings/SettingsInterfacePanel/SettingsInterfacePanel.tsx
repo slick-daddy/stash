@@ -18,6 +18,8 @@ import TextUtils from "src/utils/text";
 import {
   imageLightboxDisplayModeIntlMap,
   imageLightboxScrollModeIntlMap,
+  ImageLightboxDisplayMode,
+  ImageLightboxScrollMode,
 } from "src/core/enums";
 import { useInterfaceLocalForage } from "src/hooks/LocalForage";
 import {
@@ -570,7 +572,7 @@ export const SettingsInterfacePanel: React.FC = PatchComponent(
           <SelectSetting
             id="lightbox_display_mode"
             headingID="dialogs.lightbox.display_mode.label"
-            value={ui.imageLightbox?.displayMode ?? "FIT_XY"}
+            value={ui.imageLightbox?.displayMode ?? ImageLightboxDisplayMode.FitXy}
             onChange={(v) =>
               saveLightboxSettings({
                 displayMode: v,
@@ -605,7 +607,7 @@ export const SettingsInterfacePanel: React.FC = PatchComponent(
             id="lightbox_scroll_mode"
             headingID="dialogs.lightbox.scroll_mode.label"
             subHeadingID="dialogs.lightbox.scroll_mode.description"
-            value={ui.imageLightbox?.scrollMode ?? "ZOOM"}
+            value={ui.imageLightbox?.scrollMode ?? ImageLightboxScrollMode.Zoom}
             onChange={(v) =>
               saveLightboxSettings({
                 scrollMode: v,

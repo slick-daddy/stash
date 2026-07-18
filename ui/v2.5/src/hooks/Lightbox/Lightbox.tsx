@@ -29,7 +29,11 @@ import {
   useImageUpdate,
 } from "src/core/StashService";
 import { useInterfaceLocalForage } from "../LocalForage";
-import { imageLightboxDisplayModeIntlMap } from "src/core/enums";
+import {
+  imageLightboxDisplayModeIntlMap,
+  ImageLightboxDisplayMode,
+  ImageLightboxScrollMode,
+} from "src/core/enums";
 import { ILightboxImage, IChapter } from "./types";
 import {
   faArrowLeft,
@@ -225,12 +229,12 @@ export const LightboxComponent: React.FC<IProps> = ({
   const scrollMode =
     lightboxSettings?.scrollMode ??
     config?.ui?.imageLightbox?.scrollMode ??
-    "ZOOM";
+    ImageLightboxScrollMode.Zoom;
 
   const displayMode =
     lightboxSettings?.displayMode ??
     config?.ui?.imageLightbox?.displayMode ??
-    "FIT_XY";
+    ImageLightboxDisplayMode.FitXy;
   const oldDisplayMode = useRef(displayMode);
 
   function setDisplayMode(v: string) {
@@ -668,7 +672,7 @@ export const LightboxComponent: React.FC<IProps> = ({
                   id: "dialogs.lightbox.scale_up.label",
                 })}
                 checked={scaleUp}
-                disabled={displayMode === "ORIGINAL"}
+                disabled={displayMode === ImageLightboxDisplayMode.Original}
                 onChange={(v) => setScaleUp(v.currentTarget.checked)}
               />
             </Col>
@@ -707,12 +711,12 @@ export const LightboxComponent: React.FC<IProps> = ({
                 value={scrollMode}
                 className="btn-secondary mx-1 mb-1"
               >
-                <option value="ZOOM" key="ZOOM">
+                <option value={ImageLightboxScrollMode.Zoom} key={ImageLightboxScrollMode.Zoom}>
                   {intl.formatMessage({
                     id: "dialogs.lightbox.scroll_mode.zoom",
                   })}
                 </option>
-                <option value="PAN_Y" key="PAN_Y">
+                <option value={ImageLightboxScrollMode.PanY} key={ImageLightboxScrollMode.PanY}>
                   {intl.formatMessage({
                     id: "dialogs.lightbox.scroll_mode.pan_y",
                   })}

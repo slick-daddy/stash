@@ -3,6 +3,10 @@ import { ITypename } from "src/utils/data";
 import { ImageWallOptions } from "src/utils/imageWall";
 import { RatingSystemOptions } from "src/utils/rating";
 import {
+  ImageLightboxDisplayMode,
+  ImageLightboxScrollMode,
+} from "./enums";
+import {
   FilterMode,
   SavedFilterDataFragment,
   SortDirectionEnum,
@@ -78,10 +82,10 @@ export interface IUIConfig {
 
   imageLightbox?: {
     slideshowDelay?: number;
-    displayMode?: string;
+    displayMode?: ImageLightboxDisplayMode;
     scaleUp?: boolean;
     resetZoomOnNav?: boolean;
-    scrollMode?: string;
+    scrollMode?: ImageLightboxScrollMode;
     scrollAttemptsBeforeChange?: number;
     disableAnimation?: boolean;
   };

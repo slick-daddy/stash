@@ -2,6 +2,10 @@ import localForage from "localforage";
 import isEqual from "lodash-es/isEqual";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { View } from "src/components/List/views";
+import {
+  ImageLightboxDisplayMode,
+  ImageLightboxScrollMode,
+} from "src/core/enums";
 
 interface IInterfaceQueryConfig {
   filter: string;
@@ -15,12 +19,12 @@ export interface IViewConfig {
 
 type IQueryConfig = Record<string, IInterfaceQueryConfig>;
 
-interface ILightboxConfig {
+export interface ILightboxConfig {
   slideshowDelay?: number;
-  displayMode?: string;
+  displayMode?: ImageLightboxDisplayMode;
   scaleUp?: boolean;
   resetZoomOnNav?: boolean;
-  scrollMode?: string;
+  scrollMode?: ImageLightboxScrollMode;
   scrollAttemptsBeforeChange?: number;
   disableAnimation?: boolean;
 }

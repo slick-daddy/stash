@@ -1,4 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import {
+  ImageLightboxDisplayMode,
+  ImageLightboxScrollMode,
+} from "src/core/enums";
 
 const ZOOM_STEP = 1.1;
 const ZOOM_FACTOR = 700;
@@ -24,7 +28,7 @@ function calculateDefaultZoom(
   let yZoom: number;
   let newZoom = 1;
   switch (displayMode) {
-    case "FIT_XY":
+    case ImageLightboxDisplayMode.FitXy:
       xZoom = boundWidth / width;
       yZoom = boundHeight / height;
 
@@ -34,14 +38,14 @@ function calculateDefaultZoom(
       }
       newZoom = Math.min(xZoom, yZoom);
       break;
-    case "FIT_X":
+    case ImageLightboxDisplayMode.FitX:
       newZoom = boundWidth / width;
 
       if (!scaleUp) {
         newZoom = Math.min(newZoom, 1);
       }
       break;
-    case "ORIGINAL":
+    case ImageLightboxDisplayMode.Original:
       newZoom = 1;
       break;
   }
@@ -193,7 +197,7 @@ export const LightboxImage: React.FC<IProps> = ({
       const newPositionX = Math.min((boxWidth - imageWidth) / 2, 0);
       let newPositionY: number;
 
-      if (displayMode === "FIT_XY") {
+      if (displayMode === ImageLightboxDisplayMode.FitXy) {
         newPositionY = Math.min((boxHeight - imageHeight) / 2, 0);
       } else {
         // otherwise, align image with container
@@ -278,10 +282,10 @@ export const LightboxImage: React.FC<IProps> = ({
   function getScrollMode(ev: React.WheelEvent) {
     if (ev.shiftKey) {
       switch (scrollMode) {
-        case "ZOOM":
-          return "PAN_Y";
-        case "PAN_Y":
-          return "ZOOM";
+        case ImageLightboxScrollMode.Zoom:
+          return ImageLightboxScrollMode.PanY;
+        case ImageLightboxScrollMode.PanY:
+          return ImageLightboxScrollMode.Zoom;
       }
     }
 
@@ -290,7 +294,7 @@ export const LightboxImage: React.FC<IProps> = ({
 
   function onContainerScroll(ev: React.WheelEvent) {
     // don't zoom if mouse isn't over image
-    if (getScrollMode(ev) === "PAN_Y") {
+    if (getScrollMode(ev) === ImageLightboxScrollMode.PanY) {
       onImageScroll(ev);
     }
   }
@@ -390,7 +394,7 @@ export const LightboxImage: React.FC<IProps> = ({
         Math.abs(firstDeltaY) < SCROLL_INFINITE_THRESHOLD);
 
     switch (getScrollMode(ev)) {
-      case "ZOOM": {
+      case ImageLightboxScrollMode.Zoom: {
         let percent: number;
         if (infinite) {
           percent = 1 - ev.deltaY / ZOOM_FACTOR;
@@ -400,7 +404,7 @@ export const LightboxImage: React.FC<IProps> = ({
         setZoom(zoom * percent);
         break;
       }
-      case "PAN_Y":
+      case ImageLightboxScrollMode.PanY:
         onImageScrollPanY(ev, infinite);
         break;
     }
