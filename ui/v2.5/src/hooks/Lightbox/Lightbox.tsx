@@ -28,7 +28,7 @@ import {
   mutateImageResetO,
   useImageUpdate,
 } from "src/core/StashService";
-import { useInterfaceLocalForage } from "../LocalForage";
+import { useInterfaceLocalForage, ILightboxConfig } from "../LocalForage";
 import {
   imageLightboxDisplayModeIntlMap,
   ImageLightboxDisplayMode,
@@ -172,7 +172,7 @@ export const LightboxComponent: React.FC<IProps> = ({
 
   const lightboxSettings = interfaceLocalForage.data?.imageLightbox;
 
-  function setLightboxSettings(v: Record<string, unknown>) {
+  function setLightboxSettings(v: Partial<ILightboxConfig>) {
     setInterfaceLocalForage((prev) => {
       return {
         ...prev,
@@ -192,7 +192,7 @@ export const LightboxComponent: React.FC<IProps> = ({
     setLightboxSettings({ resetZoomOnNav: v });
   }
 
-  function setScrollMode(v: string) {
+  function setScrollMode(v: ImageLightboxScrollMode) {
     setLightboxSettings({ scrollMode: v });
   }
 
@@ -237,7 +237,7 @@ export const LightboxComponent: React.FC<IProps> = ({
     ImageLightboxDisplayMode.FitXy;
   const oldDisplayMode = useRef(displayMode);
 
-  function setDisplayMode(v: string) {
+  function setDisplayMode(v: ImageLightboxDisplayMode) {
     setLightboxSettings({ displayMode: v });
   }
 
@@ -647,7 +647,9 @@ export const LightboxComponent: React.FC<IProps> = ({
           <Col xs={8}>
             <Form.Control
               as="select"
-              onChange={(e) => setDisplayMode(e.target.value)}
+              onChange={(e) =>
+                setDisplayMode(e.target.value as ImageLightboxDisplayMode)
+              }
               value={displayMode}
               className="btn-secondary mx-1 mb-1"
             >
@@ -707,7 +709,9 @@ export const LightboxComponent: React.FC<IProps> = ({
             <Col xs={8}>
               <Form.Control
                 as="select"
-                onChange={(e) => setScrollMode(e.target.value)}
+                onChange={(e) =>
+                  setScrollMode(e.target.value as ImageLightboxScrollMode)
+                }
                 value={scrollMode}
                 className="btn-secondary mx-1 mb-1"
               >

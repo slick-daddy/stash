@@ -21,7 +21,10 @@ import {
   ImageLightboxDisplayMode,
   ImageLightboxScrollMode,
 } from "src/core/enums";
-import { useInterfaceLocalForage } from "src/hooks/LocalForage";
+import {
+  useInterfaceLocalForage,
+  ILightboxConfig,
+} from "src/hooks/LocalForage";
 import {
   ConnectionState,
   connectionStateLabel,
@@ -98,7 +101,7 @@ export const SettingsInterfacePanel: React.FC = PatchComponent(
 
     const [, setInterfaceLocalForage] = useInterfaceLocalForage();
 
-    function saveLightboxSettings(v: Record<string, unknown>) {
+    function saveLightboxSettings(v: Partial<ILightboxConfig>) {
       // save in local forage as well for consistency
       setInterfaceLocalForage((prev) => ({
         ...prev,
@@ -577,7 +580,7 @@ export const SettingsInterfacePanel: React.FC = PatchComponent(
             }
             onChange={(v) =>
               saveLightboxSettings({
-                displayMode: v,
+                displayMode: v as ImageLightboxDisplayMode,
               })
             }
           >
@@ -612,7 +615,7 @@ export const SettingsInterfacePanel: React.FC = PatchComponent(
             value={ui.imageLightbox?.scrollMode ?? ImageLightboxScrollMode.Zoom}
             onChange={(v) =>
               saveLightboxSettings({
-                scrollMode: v,
+                scrollMode: v as ImageLightboxScrollMode,
               })
             }
           >
