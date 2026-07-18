@@ -1998,9 +1998,6 @@ func (i *Config) FinalizeSetup() {
 }
 
 func (i *Config) MigrateImageLightboxConfig() {
-	i.Lock()
-	defer i.Unlock()
-
 	uiConfig := i.GetUIConfiguration()
 	if uiConfig == nil {
 		uiConfig = make(map[string]interface{})
