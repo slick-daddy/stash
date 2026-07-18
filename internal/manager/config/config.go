@@ -598,18 +598,6 @@ func (i *Config) forKey(key string) *koanf.Koanf {
 	return v
 }
 
-// viper returns the viper instance that has the key set. Returns nil
-// if no instance has the key. Assumes read lock held.
-func (i *Config) with(key string) *koanf.Koanf {
-	v := i.forKey(key)
-
-	if v.Exists(key) {
-		return v
-	}
-
-	return nil
-}
-
 func (i *Config) HasOverride(key string) bool {
 	i.RLock()
 	defer i.RUnlock()
