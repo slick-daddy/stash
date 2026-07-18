@@ -2,10 +2,7 @@ import { IntlShape } from "react-intl";
 import { ITypename } from "src/utils/data";
 import { ImageWallOptions } from "src/utils/imageWall";
 import { RatingSystemOptions } from "src/utils/rating";
-import {
-  ImageLightboxDisplayMode,
-  ImageLightboxScrollMode,
-} from "./enums";
+import { ImageLightboxDisplayMode, ImageLightboxScrollMode } from "./enums";
 import {
   FilterMode,
   SavedFilterDataFragment,

@@ -2008,3 +2008,64 @@ func (i *Config) FinalizeSetup() {
 	i.isNewSystem = false
 	// i.configUpdates <- 0
 }
+
+func (i *Config) MigrateImageLightboxConfig() {
+	i.Lock()
+	defer i.Unlock()
+
+	uiConfig := i.GetUIConfiguration()
+	if uiConfig == nil {
+		uiConfig = make(map[string]interface{})
+	}
+
+	existing, hasExisting := uiConfig["imageLightbox"]
+	if hasExisting && existing != nil {
+		return
+	}
+
+	newConfig := make(map[string]interface{})
+	migrated := false
+
+	if v := i.getInt("image_lightbox.slideshow_delay"); v != 0 {
+		newConfig["slideshowDelay"] = v
+		migrated = true
+	} else if v := i.getInt("slideshow_delay"); v != 0 {
+		newConfig["slideshowDelay"] = v
+		migrated = true
+	}
+
+	if v := i.getString("image_lightbox.display_mode"); v != "" {
+		newConfig["displayMode"] = v
+		migrated = true
+	}
+
+	if i.getBool("image_lightbox.scale_up") {
+		newConfig["scaleUp"] = true
+		migrated = true
+	}
+
+	if i.getBool("image_lightbox.reset_zoom_on_nav") {
+		newConfig["resetZoomOnNav"] = true
+		migrated = true
+	}
+
+	if v := i.getString("image_lightbox.scroll_mode"); v != "" {
+		newConfig["scrollMode"] = v
+		migrated = true
+	}
+
+	if v := i.getInt("image_lightbox.scroll_attempts_before_change"); v != 0 {
+		newConfig["scrollAttemptsBeforeChange"] = v
+		migrated = true
+	}
+
+	if i.getBool("image_lightbox.disable_animation") {
+		newConfig["disableAnimation"] = true
+		migrated = true
+	}
+
+	if migrated {
+		uiConfig["imageLightbox"] = newConfig
+		i.SetUIConfiguration(uiConfig)
+	}
+}

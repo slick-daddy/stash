@@ -14,8 +14,14 @@ export const imageLightboxDisplayModeIntlMap = new Map<
   string
 >([
   [ImageLightboxDisplayMode.Original, "dialogs.lightbox.display_mode.original"],
-  [ImageLightboxDisplayMode.FitXy, "dialogs.lightbox.display_mode.fit_to_screen"],
-  [ImageLightboxDisplayMode.FitX, "dialogs.lightbox.display_mode.fit_horizontally"],
+  [
+    ImageLightboxDisplayMode.FitXy,
+    "dialogs.lightbox.display_mode.fit_to_screen",
+  ],
+  [
+    ImageLightboxDisplayMode.FitX,
+    "dialogs.lightbox.display_mode.fit_horizontally",
+  ],
 ]);
 
 export const imageLightboxScrollModeIntlMap = new Map<

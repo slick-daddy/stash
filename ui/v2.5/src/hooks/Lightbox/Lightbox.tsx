@@ -711,12 +711,18 @@ export const LightboxComponent: React.FC<IProps> = ({
                 value={scrollMode}
                 className="btn-secondary mx-1 mb-1"
               >
-                <option value={ImageLightboxScrollMode.Zoom} key={ImageLightboxScrollMode.Zoom}>
+                <option
+                  value={ImageLightboxScrollMode.Zoom}
+                  key={ImageLightboxScrollMode.Zoom}
+                >
                   {intl.formatMessage({
                     id: "dialogs.lightbox.scroll_mode.zoom",
                   })}
                 </option>
-                <option value={ImageLightboxScrollMode.PanY} key={ImageLightboxScrollMode.PanY}>
+                <option
+                  value={ImageLightboxScrollMode.PanY}
+                  key={ImageLightboxScrollMode.PanY}
+                >
                   {intl.formatMessage({
                     id: "dialogs.lightbox.scroll_mode.pan_y",
                   })}

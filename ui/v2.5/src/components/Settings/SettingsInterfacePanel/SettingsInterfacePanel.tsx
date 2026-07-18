@@ -572,7 +572,9 @@ export const SettingsInterfacePanel: React.FC = PatchComponent(
           <SelectSetting
             id="lightbox_display_mode"
             headingID="dialogs.lightbox.display_mode.label"
-            value={ui.imageLightbox?.displayMode ?? ImageLightboxDisplayMode.FitXy}
+            value={
+              ui.imageLightbox?.displayMode ?? ImageLightboxDisplayMode.FitXy
+            }
             onChange={(v) =>
               saveLightboxSettings({
                 displayMode: v,
