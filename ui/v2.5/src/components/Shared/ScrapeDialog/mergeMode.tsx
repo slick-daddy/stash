@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useApolloClient } from "@apollo/client";
 import { Button, ButtonGroup, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useIntl } from "react-intl";
 import { ScrapeListMergeMode } from "src/core/config";
+import * as GQL from "src/core/generated-graphql";
 import { useConfigureUISetting } from "src/core/StashService";
 import { useConfigurationContextOptional } from "src/hooks/Config";
 import { useToast } from "src/hooks/Toast";
@@ -21,6 +23,7 @@ function usePersistedMergeMode(
 ) {
   const Toast = useToast();
   const context = useConfigurationContextOptional();
+  const client = useApolloClient();
   const [saveUISetting] = useConfigureUISetting();
 
   const mergeModes = context?.configuration?.ui?.scrapeDialogMergeModes;
@@ -29,11 +32,21 @@ function usePersistedMergeMode(
 
   async function persistMode(mode: ScrapeListMergeMode) {
     try {
+      // Read the freshest merge modes from the cache rather than the
+      // render-time snapshot: a preceding save to a different field may
+      // not have flowed back into context yet, and spreading the stale
+      // snapshot would drop that field's preference.
+      const cached = client.readQuery<GQL.ConfigurationQuery>({
+        query: GQL.ConfigurationDocument,
+      });
+      const latestModes =
+        cached?.configuration?.ui?.scrapeDialogMergeModes ?? mergeModes;
+
       await saveUISetting({
         variables: {
           key: "scrapeDialogMergeModes",
           value: {
-            ...mergeModes,
+            ...latestModes,
             [field]: mode,
           },
         },
