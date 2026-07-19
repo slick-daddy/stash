@@ -2052,5 +2052,8 @@ func (i *Config) MigrateImageLightboxConfig() {
 	if migrated {
 		uiConfig["imageLightbox"] = newConfig
 		i.SetUIConfiguration(uiConfig)
+		if err := i.Write(); err != nil {
+			logger.Errorf("error writing config after migrating image lightbox settings: %v", err)
+		}
 	}
 }
