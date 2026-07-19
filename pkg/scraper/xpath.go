@@ -112,6 +112,7 @@ func (s *xpathNameScraper) scrapeByName(ctx context.Context, name string, ty Scr
 	}
 
 	q := s.getXPathQuery(doc, url)
+	q.name = name
 	q.setType(SearchQuery)
 
 	var content []ScrapedContent
@@ -286,6 +287,7 @@ type xpathQuery struct {
 	scraper   *xpathScraper
 	queryType QueryType
 	url       string
+	name      string
 }
 
 func (q *xpathQuery) getType() QueryType {
@@ -298,6 +300,10 @@ func (q *xpathQuery) setType(t QueryType) {
 
 func (q *xpathQuery) getURL() string {
 	return q.url
+}
+
+func (q *xpathQuery) getName() string {
+	return q.name
 }
 
 func (q *xpathQuery) runQuery(selector string) ([]string, error) {
