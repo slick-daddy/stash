@@ -291,12 +291,19 @@ func (s *Scanner) handleFolderRename(ctx context.Context, file ScannedFile) (*mo
 func (s *Scanner) onExistingFolder(ctx context.Context, f ScannedFile, existing *models.Folder) (*models.Folder, error) {
 	update := false
 
-	// update if mod time changed or if rescanning
+	// update if mod time changed
 	entryModTime := f.ModTime
 	updated := !entryModTime.Equal(existing.ModTime)
-	if updated || s.Rescan {
+	if updated {
 		existing.Path = f.Path
 		existing.ModTime = entryModTime
+		existing.BirthTime = f.BirthTime
+		update = true
+	}
+
+	// backfill birth_time for folders created before migration 86.
+	// Guarded so this fires once when missing rather than on every rescan.
+	if existing.BirthTime == nil && f.BirthTime != nil {
 		existing.BirthTime = f.BirthTime
 		update = true
 	}
