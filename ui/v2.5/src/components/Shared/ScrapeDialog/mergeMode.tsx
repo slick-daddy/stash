@@ -14,6 +14,22 @@ function isValidMergeMode(mode: unknown): mode is ScrapeListMergeMode {
   return mode === "merge" || mode === "overwrite";
 }
 
+// scrapeDialogMergeModes is stored as a single map under one config key, so
+// concurrent per-field saves are read-modify-write operations on shared
+// state. A dialog mounts one hook per list field, and each spreads the map
+// before writing its own entry. Serialize the saves through a shared chain
+// so each runs after the previous one has written back, and each reads the
+// freshest map rather than racing on a stale snapshot.
+let mergeModeSaveQueue: Promise<unknown> = Promise.resolve();
+
+function enqueueMergeModeSave(save: () => Promise<unknown>): Promise<unknown> {
+  const next = mergeModeSaveQueue.then(save, save);
+  // Keep the chain alive even if a save rejects, without surfacing an
+  // unhandled rejection on the shared queue itself.
+  mergeModeSaveQueue = next.catch(() => undefined);
+  return next;
+}
+
 // usePersistedMergeMode returns the persisted merge mode for the given field,
 // falling back to the given default, and a function to persist a new mode in
 // the UI configuration.
@@ -32,24 +48,26 @@ function usePersistedMergeMode(
 
   async function persistMode(mode: ScrapeListMergeMode) {
     try {
-      // Read the freshest merge modes from the cache rather than the
-      // render-time snapshot: a preceding save to a different field may
-      // not have flowed back into context yet, and spreading the stale
-      // snapshot would drop that field's preference.
-      const cached = client.readQuery<GQL.ConfigurationQuery>({
-        query: GQL.ConfigurationDocument,
-      });
-      const latestModes =
-        cached?.configuration?.ui?.scrapeDialogMergeModes ?? mergeModes;
+      await enqueueMergeModeSave(() => {
+        // Read the freshest merge modes inside the queued task, after any
+        // preceding save has written back to the cache. The render-time
+        // snapshot may be stale, so spreading it would drop other fields'
+        // preferences.
+        const cached = client.readQuery<GQL.ConfigurationQuery>({
+          query: GQL.ConfigurationDocument,
+        });
+        const latestModes =
+          cached?.configuration?.ui?.scrapeDialogMergeModes ?? mergeModes;
 
-      await saveUISetting({
-        variables: {
-          key: "scrapeDialogMergeModes",
-          value: {
-            ...latestModes,
-            [field]: mode,
+        return saveUISetting({
+          variables: {
+            key: "scrapeDialogMergeModes",
+            value: {
+              ...latestModes,
+              [field]: mode,
+            },
           },
-        },
+        });
       });
     } catch (e) {
       Toast.error(e);
