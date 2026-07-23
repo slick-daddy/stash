@@ -67,8 +67,9 @@ const PerformerCardPopovers: React.FC<IPerformerCardProps> = PatchComponent(
       return filter;
     }, [extraCriteria, performer]);
     const filteredScenesResult = useFindScenes(filteredScenesFilter);
-    const sceneCount =
-      filteredScenesResult.data?.findScenes.count ?? performer.scene_count;
+    const sceneCount = filteredScenesFilter
+      ? (filteredScenesResult.data?.findScenes.count ?? 0)
+      : performer.scene_count;
 
     function maybeRenderScenesPopoverButton() {
       if (!sceneCount) return;
@@ -162,7 +163,7 @@ const PerformerCardPopovers: React.FC<IPerformerCardProps> = PatchComponent(
     }
 
     if (
-      performer.scene_count ||
+      sceneCount ||
       performer.image_count ||
       performer.gallery_count ||
       performer.tags.length > 0 ||
