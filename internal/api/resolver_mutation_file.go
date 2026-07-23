@@ -209,7 +209,7 @@ func (r *mutationResolver) DeleteFiles(ctx context.Context, ids []string) (ret b
 			destroyedFiles = append(destroyedFiles, plugin.FileDestroyInput{
 				Path:      path,
 				FileID:    int(fileID),
-				IsZipFile: true,
+				IsZipFile: len(inZip) > 0,
 				Checksum:  plugin.FileBestChecksum(f[0].Base().Fingerprints),
 			})
 		}
@@ -271,6 +271,12 @@ func (r *mutationResolver) DestroyFiles(ctx context.Context, ids []string) (ret 
 				return fmt.Errorf("cannot destroy primary file entry %s", path)
 			}
 
+			// determine whether this file is itself a zip (contains other files)
+			inZip, err := qb.FindByZipFileID(ctx, fileID)
+			if err != nil {
+				return fmt.Errorf("finding zip file contents for %s: %w", path, err)
+			}
+
 			// destroy DB entries only (no filesystem deletion)
 			const deleteFile = false
 			if err := destroyer.DestroyZip(ctx, f[0], nil, deleteFile); err != nil {
@@ -280,7 +286,7 @@ func (r *mutationResolver) DestroyFiles(ctx context.Context, ids []string) (ret 
 			destroyedFiles = append(destroyedFiles, plugin.FileDestroyInput{
 				Path:      path,
 				FileID:    int(fileID),
-				IsZipFile: true,
+				IsZipFile: len(inZip) > 0,
 				Checksum:  plugin.FileBestChecksum(f[0].Base().Fingerprints),
 			})
 		}
