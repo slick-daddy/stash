@@ -50,7 +50,7 @@ const PerformerCardPopovers: React.FC<IPerformerCardProps> = PatchComponent(
   "PerformerCard.Popovers",
   ({ performer, extraCriteria }) => {
     const filteredScenesFilter = React.useMemo(() => {
-      if (!extraCriteria?.scenes?.length) {
+      if (!extraCriteria?.scenes?.length && !extraCriteria?.performer) {
         return;
       }
 
