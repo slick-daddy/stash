@@ -164,7 +164,8 @@ func (s *xpathFragmentScraper) scrapeSceneByScene(ctx context.Context, scene *mo
 		}
 		url, err := queryURL.constructURLOrError(s.definition.QueryURL)
 		if err != nil {
-			return nil, err
+			lastErr = err
+			continue
 		}
 
 		doc, err := s.loadURL(ctx, url)
