@@ -88,7 +88,7 @@ export const ImageScrapeDialog: React.FC<IImageScrapeDialogProps> = ({
     mergeMode: performersMergeMode,
     onSetMergeMode: onSetPerformersMergeMode,
   } = useMergeModeObjectList<GQL.ScrapedPerformer>(
-    "image.performers",
+    "image_performers",
     imagePerformers.map((p) => ({
       stored_id: p.id,
       name: p.name,

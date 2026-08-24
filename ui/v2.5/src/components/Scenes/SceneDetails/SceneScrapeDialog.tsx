@@ -102,7 +102,7 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
     mergeMode: performersMergeMode,
     onSetMergeMode: onSetPerformersMergeMode,
   } = useMergeModeObjectList<GQL.ScrapedPerformer>(
-    "scene.performers",
+    "scene_performers",
     scenePerformers.map((p) => ({
       stored_id: p.id,
       name: p.name,
@@ -119,7 +119,7 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
     mergeMode: groupsMergeMode,
     onSetMergeMode: onSetGroupsMergeMode,
   } = useMergeModeObjectList<GQL.ScrapedGroup>(
-    "scene.groups",
+    "scene_groups",
     sceneGroups.map((p) => ({
       stored_id: p.id,
       name: p.name,
