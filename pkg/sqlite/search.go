@@ -160,8 +160,6 @@ func (qb *SearchStore) Search(ctx context.Context, input models.SearchInput) (*m
 }
 
 // rankArgs returns the arguments for the rank expression in a query's
-// ORDER BY clause.
-// rankArgs returns the arguments for the rank expression in a query's
 // ORDER BY clause. The prefix pattern escapes the term before appending
 // the ranking wildcard so wildcard characters in the term are matched
 // literally.
