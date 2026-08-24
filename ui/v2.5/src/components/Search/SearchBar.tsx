@@ -35,7 +35,7 @@ export const SearchBar: React.FC = () => {
   const mobileInputRef = useRef<HTMLInputElement>(null);
 
   const active = open || mobileOpen;
-  const { results, showLoading, error, retry } = useSearch(term, active);
+  const { results, error, retry } = useSearch(term, active);
   const { recentSearches, addRecentSearch } = useRecentSearches();
 
   const navigate = useCallback(
@@ -83,17 +83,12 @@ export const SearchBar: React.FC = () => {
       return recentSearches.length > 0 ? "recents" : "idle";
     }
     if (error) return "error";
-    if (showLoading) return "loading";
-    if (!results || !anyResults) return results ? "noResults" : "idle";
+    // no results for the current term: either waiting for a response
+    // (within the debounce window after clearing the previous term's
+    // results, or in flight without skeletons yet) or genuinely empty
+    if (!results || !anyResults) return results ? "noResults" : "loading";
     return "results";
-  }, [
-    trimmedTerm,
-    recentSearches.length,
-    error,
-    showLoading,
-    results,
-    anyResults,
-  ]);
+  }, [trimmedTerm, recentSearches.length, error, results, anyResults]);
 
   const closeOverlay = useCallback(() => {
     setOpen(false);

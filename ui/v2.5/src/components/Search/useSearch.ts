@@ -4,40 +4,28 @@ import { getClient } from "src/core/StashService";
 import { SearchDocument, SearchQuery } from "src/core/generated-graphql";
 
 const DEBOUNCE_MS = 250;
-// the loading indicator is only shown if the query takes longer than this
-const LOADING_INDICATOR_DELAY_MS = 150;
 
 export interface ISearchState {
+  // results are undefined while waiting for the query for the current
+  // term - either within the debounce window or while in flight
   results: SearchQuery["search"] | undefined;
-  // true while a query is in flight and has taken longer than
-  // LOADING_INDICATOR_DELAY_MS - used to show skeletons
-  showLoading: boolean;
   error: string | undefined;
   retry: () => void;
 }
 
 export function useSearch(term: string, active: boolean): ISearchState {
   const [results, setResults] = useState<SearchQuery["search"]>();
-  const [showLoading, setShowLoading] = useState(false);
   const [error, setError] = useState<string>();
 
   const seq = useRef(0);
   const debounceTimer = useRef<number | undefined>(undefined);
-  const loadingTimer = useRef<number | undefined>(undefined);
   const lastTerm = useRef("");
+  // the term the current results belong to
+  const resultsTerm = useRef("");
 
   const run = useCallback(async (searchTerm: string) => {
     const id = ++seq.current;
     lastTerm.current = searchTerm;
-
-    setShowLoading(false);
-
-    window.clearTimeout(loadingTimer.current);
-    loadingTimer.current = window.setTimeout(() => {
-      if (seq.current === id) {
-        setShowLoading(true);
-      }
-    }, LOADING_INDICATOR_DELAY_MS);
 
     try {
       const res = await getClient().query<SearchQuery>({
@@ -48,17 +36,13 @@ export function useSearch(term: string, active: boolean): ISearchState {
 
       if (id !== seq.current) return;
 
+      resultsTerm.current = searchTerm;
       setResults(res.data.search);
       setError(undefined);
     } catch (e) {
       if (id !== seq.current) return;
       setResults(undefined);
       setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      window.clearTimeout(loadingTimer.current);
-      if (id === seq.current) {
-        setShowLoading(false);
-      }
     }
   }, []);
 
@@ -70,21 +54,32 @@ export function useSearch(term: string, active: boolean): ISearchState {
 
   useEffect(() => {
     window.clearTimeout(debounceTimer.current);
-    window.clearTimeout(loadingTimer.current);
 
-    if (!active || !term.trim()) {
+    const trimmed = term.trim();
+
+    if (!active || !trimmed) {
       // invalidate any in-flight request and clear state
       seq.current++;
-      setShowLoading(false);
       setError(undefined);
-      if (!term.trim()) {
+      if (!trimmed) {
+        resultsTerm.current = "";
         setResults(undefined);
       }
       return;
     }
 
+    if (resultsTerm.current !== trimmed) {
+      // scheduling a different term - invalidate any in-flight request for
+      // the previous term and hide its results so they cannot be selected
+      // under the new term while waiting for the debounced query
+      seq.current++;
+      resultsTerm.current = "";
+      setResults(undefined);
+      setError(undefined);
+    }
+
     debounceTimer.current = window.setTimeout(() => {
-      run(term.trim());
+      run(trimmed);
     }, DEBOUNCE_MS);
 
     return () => {
@@ -95,9 +90,8 @@ export function useSearch(term: string, active: boolean): ISearchState {
   useEffect(() => {
     return () => {
       window.clearTimeout(debounceTimer.current);
-      window.clearTimeout(loadingTimer.current);
     };
   }, []);
 
-  return { results, showLoading, error, retry };
+  return { results, error, retry };
 }
