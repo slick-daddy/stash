@@ -47,16 +47,21 @@ func NewSearchStore() *SearchStore {
 	return &SearchStore{}
 }
 
+// escapeLike escapes LIKE wildcard characters so that they are matched
+// literally within a LIKE ... ESCAPE '\' pattern.
+func escapeLike(v string) string {
+	return strings.NewReplacer(
+		`\`, `\\`,
+		`%`, `\%`,
+		`_`, `\_`,
+	).Replace(v)
+}
+
 // likeTerm escapes the term for literal use within a LIKE clause.
 // Wildcard characters in the term are escaped so they are matched
 // literally.
 func likeTerm(term string) string {
-	escaped := strings.NewReplacer(
-		`\`, `\\`,
-		`%`, `\%`,
-		`_`, `\_`,
-	).Replace(term)
-	return "%" + escaped + "%"
+	return "%" + escapeLike(term) + "%"
 }
 
 // searchRankExpr returns a CASE expression ranking exact matches first,
@@ -156,9 +161,13 @@ func (qb *SearchStore) Search(ctx context.Context, input models.SearchInput) (*m
 
 // rankArgs returns the arguments for the rank expression in a query's
 // ORDER BY clause.
+// rankArgs returns the arguments for the rank expression in a query's
+// ORDER BY clause. The prefix pattern escapes the term before appending
+// the ranking wildcard so wildcard characters in the term are matched
+// literally.
 func rankArgs(term string) []interface{} {
 	lower := strings.ToLower(term)
-	return []interface{}{lower, lower + "%"}
+	return []interface{}{lower, escapeLike(lower) + "%"}
 }
 
 func (qb *SearchStore) searchScenes(ctx context.Context, term string, limit int) ([]*models.SceneSearchResult, int, error) {

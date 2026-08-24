@@ -205,6 +205,54 @@ func TestSearchRanking(t *testing.T) {
 	})
 }
 
+func TestSearchWildcardRanking(t *testing.T) {
+	runWithRollbackTxn(t, "search wildcard ranking", func(t *testing.T, ctx context.Context) {
+		qb := db.Performer
+
+		names := []string{
+			// exact match
+			"r_d",
+			// true prefix - starts with the literal term
+			"r_d x",
+			// substring - matches the WHERE clause via the literal tail,
+			// but must not rank as a prefix match. Starts with 'r' and
+			// sorts before "r_d x" ('3' < '_' even under NOCASE), so a
+			// prefix pattern that does not escape the term would promote
+			// it to prefix rank and displace "r_d x" under limit 2
+			"r3d r_d",
+		}
+
+		for _, n := range names {
+			performer := models.Performer{
+				Name: n,
+			}
+			err := qb.Create(ctx, &models.CreatePerformerInput{
+				Performer: &performer,
+			})
+			if err != nil {
+				t.Fatalf("Error creating performer: %s", err.Error())
+			}
+		}
+
+		results, err := db.Search.Search(ctx, models.SearchInput{
+			Term:         "r_d",
+			LimitPerType: 2,
+		})
+		if err != nil {
+			t.Fatalf("Error searching performers: %s", err.Error())
+		}
+
+		var got []string
+		for _, p := range results.Performers {
+			got = append(got, p.Name)
+		}
+
+		// exact then prefix; with limit 2 the genuine prefix match must
+		// not be displaced by alphabetically earlier substring matches
+		assert.Equal(t, []string{"r_d", "r_d x"}, got)
+	})
+}
+
 func TestSearchMarkers(t *testing.T) {
 	runWithRollbackTxn(t, "search markers", func(t *testing.T, ctx context.Context) {
 		mqb := db.SceneMarker
