@@ -157,14 +157,18 @@ export function useMergeModeList<T, R extends ScrapeResult<T[]>>(
 
     function merge(r: R) {
       const current = r.newValue ?? [];
-      const missing = missingExisting.filter(
-        (v) => !current.some((vv) => isEqual(v, vv))
-      );
-      if (missing.length === 0) {
-        return r;
-      }
-
-      const merged = [...missing, ...current];
+      const original = base.originalValue ?? [];
+      // preserve the order of the existing values: urls[0] is treated as the
+      // primary URL, so merged-in values must not be moved to the end
+      const merged = [
+        ...original.filter(
+          (v) =>
+            missingExisting.some((vv) => isEqual(v, vv)) ||
+            current.some((vv) => isEqual(v, vv))
+        ),
+        ...current.filter((v) => !original.some((vv) => isEqual(v, vv))),
+      ];
+      if (isEqualList(isEqual)(merged, current)) return r;
       return r.cloneWithValue(sortValues ? sortValues(merged) : merged);
     }
 
