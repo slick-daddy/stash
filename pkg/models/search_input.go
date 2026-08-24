@@ -66,7 +66,7 @@ type SearchInput struct {
 }
 
 // GetLimitPerType returns the limit per entity type, defaulting to
-// DefaultSearchLimitPerType if unset or negative.
+// 10 if unset or negative. Matches the schema default for limitPerType.
 func (i SearchInput) GetLimitPerType() int {
 	const defaultLimit = 10
 

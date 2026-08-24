@@ -54,15 +54,21 @@ export function hasSearchResults(results: SearchResults | undefined) {
   );
 }
 
+// joinSubtitle combines the given parts into a single subtitle string,
+// omitting missing parts.
+function joinSubtitle(parts: (string | null | undefined)[]) {
+  const filtered = parts.filter((part) => !!part);
+  return filtered.length > 0 ? filtered.join(" · ") : undefined;
+}
+
 function sceneSubtitle(
   studioName: string | null | undefined,
   duration: number | null | undefined
 ) {
-  const parts = [
+  return joinSubtitle([
     studioName,
     duration != null ? TextUtils.secondsToTimestamp(duration) : null,
-  ].filter((part) => !!part);
-  return parts.length > 0 ? parts.join(" · ") : undefined;
+  ]);
 }
 
 // Builds the grouped search results for the given response. Each group
@@ -127,10 +133,15 @@ export function buildSearchGroups(
           <SearchResultRow
             key={tag.id}
             icon={faTag}
-            title={
-              tag.sceneCount != null
-                ? `${tag.name} (${tag.sceneCount})`
-                : tag.name
+            title={tag.name}
+            subtitle={
+              tag.sceneCount != null ? (
+                <FormattedMessage
+                  id="search.scene_count"
+                  defaultMessage="{count, plural, one {# scene} other {# scenes}}"
+                  values={{ count: tag.sceneCount }}
+                />
+              ) : undefined
             }
             selected={selected}
             onSelect={() => onNavigate(`/tags/${tag.id}`)}
@@ -211,16 +222,12 @@ export function buildSearchGroups(
             key={marker.id}
             icon={faMapMarkerAlt}
             title={marker.title}
-            subtitle={
-              [
-                marker.sceneName,
-                marker.seconds != null
-                  ? TextUtils.secondsToTimestamp(marker.seconds)
-                  : null,
-              ]
-                .filter((part) => !!part)
-                .join(" · ") || undefined
-            }
+            subtitle={joinSubtitle([
+              marker.sceneName,
+              marker.seconds != null
+                ? TextUtils.secondsToTimestamp(marker.seconds)
+                : null,
+            ])}
             selected={selected}
             onSelect={() => onNavigate(`/scenes/${marker.sceneId}?tab=markers`)}
           />
@@ -251,7 +258,27 @@ export function selectableItemCount(groups: ISearchGroupData[]) {
   return groups.reduce((sum, group) => sum + group.items.length + 1, 0);
 }
 
-type OverlayMode =
+// selectableItemAction returns the action for the item at the given index
+// within the flattened list of groups' items and "see all" actions.
+export function selectableItemAction(
+  groups: ISearchGroupData[],
+  index: number
+): (() => void) | undefined {
+  let flat = 0;
+  for (const group of groups) {
+    for (const item of group.items) {
+      if (flat === index) return item.onSelect;
+      flat++;
+    }
+
+    if (flat === index) return group.onSeeAll;
+    flat++;
+  }
+
+  return undefined;
+}
+
+export type OverlayMode =
   | "idle"
   | "recents"
   | "error"

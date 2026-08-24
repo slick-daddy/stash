@@ -47,18 +47,24 @@ func NewSearchStore() *SearchStore {
 	return &SearchStore{}
 }
 
-// likeTerm escapes the term for use in a LIKE clause. It does not escape
-// LIKE wildcards, consistent with other search behaviour in this package.
+// likeTerm escapes the term for literal use within a LIKE clause.
+// Wildcard characters in the term are escaped so they are matched
+// literally.
 func likeTerm(term string) string {
-	return "%" + term + "%"
+	escaped := strings.NewReplacer(
+		`\`, `\\`,
+		`%`, `\%`,
+		`_`, `\_`,
+	).Replace(term)
+	return "%" + escaped + "%"
 }
 
 // searchRankExpr returns a CASE expression ranking exact matches first,
-// then prefix matches, then substring matches. Takes the lower-cased term
-// and its prefix as arguments.
+// then prefix matches, then substring matches. Takes the lower-cased
+// term and its prefix as arguments.
 func searchRankExpr(column string) string {
 	return fmt.Sprintf(
-		`CASE WHEN LOWER(%[1]s) = LOWER(?) THEN 0 WHEN LOWER(%[1]s) LIKE ? THEN 1 ELSE 2 END`,
+		`CASE WHEN LOWER(%[1]s) = LOWER(?) THEN 0 WHEN LOWER(%[1]s) LIKE ? ESCAPE '\' THEN 1 ELSE 2 END`,
 		column,
 	)
 }
@@ -156,7 +162,7 @@ func rankArgs(term string) []interface{} {
 }
 
 func (qb *SearchStore) searchScenes(ctx context.Context, term string, limit int) ([]*models.SceneSearchResult, int, error) {
-	const whereClause = `WHERE COALESCE(scenes.title, '') LIKE ?`
+	const whereClause = `WHERE COALESCE(scenes.title, '') LIKE ? ESCAPE '\'`
 
 	countQuery := `SELECT COUNT(*) FROM scenes ` + whereClause
 
@@ -258,7 +264,7 @@ func (qb *SearchStore) searchGroups(ctx context.Context, term string, limit int)
 // searchByName performs a ranked name search on the given table. The
 // table must have id and name columns.
 func searchByName(ctx context.Context, table string, nameColumn string, term string, limit int) ([]*searchNameRow, int, error) {
-	whereClause := `WHERE ` + nameColumn + ` LIKE ?`
+	whereClause := `WHERE ` + nameColumn + ` LIKE ? ESCAPE '\'`
 
 	countQuery := `SELECT COUNT(*) FROM ` + table + ` ` + whereClause
 
@@ -283,7 +289,7 @@ func searchByName(ctx context.Context, table string, nameColumn string, term str
 }
 
 func (qb *SearchStore) searchTags(ctx context.Context, term string, limit int) ([]*models.TagSearchResult, int, error) {
-	const whereClause = `WHERE tags.name LIKE ?`
+	const whereClause = `WHERE tags.name LIKE ? ESCAPE '\'`
 
 	countQuery := `SELECT COUNT(*) FROM tags ` + whereClause
 
@@ -322,7 +328,7 @@ LIMIT ?`
 }
 
 func (qb *SearchStore) searchGalleries(ctx context.Context, term string, limit int) ([]*models.GallerySearchResult, int, error) {
-	const whereClause = `WHERE COALESCE(galleries.title, '') LIKE ?`
+	const whereClause = `WHERE COALESCE(galleries.title, '') LIKE ? ESCAPE '\'`
 
 	countQuery := `SELECT COUNT(*) FROM galleries ` + whereClause
 
@@ -359,7 +365,7 @@ LIMIT ?`
 }
 
 func (qb *SearchStore) searchMarkers(ctx context.Context, term string, limit int) ([]*models.MarkerSearchResult, int, error) {
-	const whereClause = `WHERE scene_markers.title LIKE ?`
+	const whereClause = `WHERE scene_markers.title LIKE ? ESCAPE '\'`
 
 	countQuery := `SELECT COUNT(*) FROM scene_markers ` + whereClause
 

@@ -110,10 +110,7 @@ func makeSearchResults(baseURL string, results *models.SearchResults) *SearchRes
 	}
 
 	for i, r := range results.Scenes {
-		var thumbnailPath string
-		if baseURL != "" {
-			thumbnailPath = baseURL + "/scene/" + strconv.Itoa(r.ID) + "/screenshot"
-		}
+		thumbnailPath := previewPath(baseURL, "scene", r.ID, "screenshot")
 		previews.Scenes[i] = &ScenePreview{
 			ID:            strconv.Itoa(r.ID),
 			Title:         r.Title,
@@ -124,10 +121,7 @@ func makeSearchResults(baseURL string, results *models.SearchResults) *SearchRes
 	}
 
 	for i, r := range results.Performers {
-		var imagePath string
-		if baseURL != "" {
-			imagePath = baseURL + "/performer/" + strconv.Itoa(r.ID) + "/image"
-		}
+		imagePath := previewPath(baseURL, "performer", r.ID, "image")
 		previews.Performers[i] = &PerformerPreview{
 			ID:        strconv.Itoa(r.ID),
 			Name:      r.Name,
@@ -145,10 +139,7 @@ func makeSearchResults(baseURL string, results *models.SearchResults) *SearchRes
 	}
 
 	for i, r := range results.Studios {
-		var imagePath string
-		if baseURL != "" {
-			imagePath = baseURL + "/studio/" + strconv.Itoa(r.ID) + "/image"
-		}
+		imagePath := previewPath(baseURL, "studio", r.ID, "image")
 		previews.Studios[i] = &StudioPreview{
 			ID:        strconv.Itoa(r.ID),
 			Name:      r.Name,
@@ -157,10 +148,7 @@ func makeSearchResults(baseURL string, results *models.SearchResults) *SearchRes
 	}
 
 	for i, r := range results.Galleries {
-		var coverPath string
-		if baseURL != "" {
-			coverPath = baseURL + "/gallery/" + strconv.Itoa(r.ID) + "/cover"
-		}
+		coverPath := previewPath(baseURL, "gallery", r.ID, "cover")
 		previews.Galleries[i] = &GalleryPreview{
 			ID:        strconv.Itoa(r.ID),
 			Title:     r.Title,
@@ -169,10 +157,7 @@ func makeSearchResults(baseURL string, results *models.SearchResults) *SearchRes
 	}
 
 	for i, r := range results.Groups {
-		var thumbnailPath string
-		if baseURL != "" {
-			thumbnailPath = baseURL + "/group/" + strconv.Itoa(r.ID) + "/frontimage"
-		}
+		thumbnailPath := previewPath(baseURL, "group", r.ID, "frontimage")
 		previews.Groups[i] = &GroupPreview{
 			ID:            strconv.Itoa(r.ID),
 			Name:          r.Name,
@@ -193,6 +178,15 @@ func makeSearchResults(baseURL string, results *models.SearchResults) *SearchRes
 	return previews
 }
 
+// previewPath returns the URL for an entity's image endpoint. It returns
+// the empty string if baseURL is empty.
+func previewPath(baseURL string, pathPrefix string, id int, endpoint string) string {
+	if baseURL == "" {
+		return ""
+	}
+
+	return baseURL + "/" + pathPrefix + "/" + strconv.Itoa(id) + "/" + endpoint
+}
 func makeSearchResultCounts(counts models.SearchResultCounts) *SearchResultCounts {
 	return &SearchResultCounts{
 		Scenes:     counts.Scenes,

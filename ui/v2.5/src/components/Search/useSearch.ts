@@ -9,8 +9,6 @@ const LOADING_INDICATOR_DELAY_MS = 150;
 
 export interface ISearchState {
   results: SearchQuery["search"] | undefined;
-  // true while a query is in flight
-  loading: boolean;
   // true while a query is in flight and has taken longer than
   // LOADING_INDICATOR_DELAY_MS - used to show skeletons
   showLoading: boolean;
@@ -20,7 +18,6 @@ export interface ISearchState {
 
 export function useSearch(term: string, active: boolean): ISearchState {
   const [results, setResults] = useState<SearchQuery["search"]>();
-  const [loading, setLoading] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -33,7 +30,6 @@ export function useSearch(term: string, active: boolean): ISearchState {
     const id = ++seq.current;
     lastTerm.current = searchTerm;
 
-    setLoading(true);
     setShowLoading(false);
 
     window.clearTimeout(loadingTimer.current);
@@ -61,7 +57,6 @@ export function useSearch(term: string, active: boolean): ISearchState {
     } finally {
       window.clearTimeout(loadingTimer.current);
       if (id === seq.current) {
-        setLoading(false);
         setShowLoading(false);
       }
     }
@@ -80,7 +75,6 @@ export function useSearch(term: string, active: boolean): ISearchState {
     if (!active || !term.trim()) {
       // invalidate any in-flight request and clear state
       seq.current++;
-      setLoading(false);
       setShowLoading(false);
       setError(undefined);
       if (!term.trim()) {
@@ -105,5 +99,5 @@ export function useSearch(term: string, active: boolean): ISearchState {
     };
   }, []);
 
-  return { results, loading, showLoading, error, retry };
+  return { results, showLoading, error, retry };
 }

@@ -17,15 +17,9 @@ import {
   buildSearchGroups,
   hasSearchResults,
   selectableItemCount,
+  selectableItemAction,
+  OverlayMode,
 } from "./SearchOverlay";
-
-type OverlayMode =
-  | "idle"
-  | "recents"
-  | "error"
-  | "loading"
-  | "noResults"
-  | "results";
 
 export const SearchBar: React.FC = () => {
   const intl = useIntl();
@@ -154,24 +148,9 @@ export const SearchBar: React.FC = () => {
             break;
           }
 
-          // find the selected item in the flattened list of result rows
-          // (each group's rows followed by its see-all action)
-          let flat = 0;
-          for (const group of groups) {
-            for (const item of group.items) {
-              if (flat === selectedIndex) {
-                item.onSelect();
-                return;
-              }
-              flat++;
-            }
-
-            if (flat === selectedIndex) {
-              handleNavigate(group.href);
-              return;
-            }
-            flat++;
-          }
+          // navigate to the selected item in the flattened list of
+          // result rows and "see all" actions
+          selectableItemAction(groups, selectedIndex)?.();
           break;
         }
         case "Escape":
@@ -187,7 +166,6 @@ export const SearchBar: React.FC = () => {
       selectedIndex,
       selectRecent,
       groups,
-      handleNavigate,
       closeOverlay,
     ]
   );
