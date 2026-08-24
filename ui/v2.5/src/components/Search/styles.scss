@@ -193,7 +193,7 @@
   .search-overlay-error-detail {
     font-size: 0.8rem;
     margin-top: 0.25rem;
-    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 }
 
