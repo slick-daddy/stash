@@ -1448,6 +1448,22 @@
   "scene_updated_at": "Scene Updated At",
   "scenes": "Scenes",
   "scenes_updated_at": "Scene Updated At",
+  "search": {
+    "error": "An error occurred while searching",
+    "no_results": "No results found for \"{term}\"",
+    "placeholder": "Search…",
+    "recent_searches": "Recent searches",
+    "retry": "Retry",
+    "scene_count": "{count, plural, one {# scene} other {# scenes}}",
+    "see_all_galleries": "See all {count, plural, one {# gallery} other {# galleries}}",
+    "see_all_groups": "See all {count, plural, one {# group} other {# groups}}",
+    "see_all_markers": "See all {count, plural, one {# marker} other {# markers}}",
+    "see_all_performers": "See all {count, plural, one {# performer} other {# performers}}",
+    "see_all_scenes": "See all {count, plural, one {# scene} other {# scenes}}",
+    "see_all_studios": "See all {count, plural, one {# studio} other {# studios}}",
+    "see_all_tags": "See all {count, plural, one {# tag} other {# tags}}",
+    "type_to_search": "Type to search"
+  },
   "search_filter": {
     "edit_filter": "Edit Filter",
     "name": "Filter",
