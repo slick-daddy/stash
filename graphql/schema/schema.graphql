@@ -130,6 +130,9 @@ type Query {
     ids: [ID!]
   ): FindTagsResultType!
 
+  "Perform a search across multiple entity types simultaneously"
+  search(input: SearchInput!): SearchResults!
+
   "Retrieve random scene markers for the wall"
   markerWall(q: String): [SceneMarker!]!
   "Retrieve random scenes for the wall"

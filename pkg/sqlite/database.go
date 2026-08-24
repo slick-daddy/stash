@@ -79,6 +79,7 @@ type storeRepository struct {
 	Studio         *StudioStore
 	Tag            *TagStore
 	Group          *GroupStore
+	Search         *SearchStore
 }
 
 type Database struct {
