@@ -224,7 +224,7 @@ export const PerformerScrapeDialog: React.FC<IPerformerScrapeDialogProps> = (
     mergeMode: aliasesMergeMode,
     onSetMergeMode: onSetAliasesMergeMode,
   } = useMergeModeDelimitedString(
-    "performer.aliases",
+    "performer_aliases",
     props.performer.alias_list?.join(", "),
     props.scraped.aliases
   );
@@ -303,7 +303,7 @@ export const PerformerScrapeDialog: React.FC<IPerformerScrapeDialogProps> = (
     mergeMode: urlsMergeMode,
     onSetMergeMode: onSetURLsMergeMode,
   } = useMergeModeStringList(
-    "performer.urls",
+    "performer_urls",
     props.performer.urls,
     props.scraped.urls
   );
@@ -332,7 +332,7 @@ export const PerformerScrapeDialog: React.FC<IPerformerScrapeDialogProps> = (
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     props.performerTags,
     props.scraped.tags,
-    { endpoint, mergeModeField: "performer.tags" }
+    { endpoint, mergeModeField: "performer_tags" }
   );
 
   const [image, setImage] = useState<ScrapeResult<string>>(

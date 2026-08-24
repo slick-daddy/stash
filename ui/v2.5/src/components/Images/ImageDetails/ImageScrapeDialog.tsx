@@ -58,7 +58,7 @@ export const ImageScrapeDialog: React.FC<IImageScrapeDialogProps> = ({
     setResult: setURLs,
     mergeMode: urlsMergeMode,
     onSetMergeMode: onSetURLsMergeMode,
-  } = useMergeModeStringList("image.urls", image.urls, scraped.urls);
+  } = useMergeModeStringList("image_urls", image.urls, scraped.urls);
   const [date, setDate] = useState<ScrapeResult<string>>(
     new ScrapeResult<string>(image.date, scraped.date)
   );
@@ -102,7 +102,7 @@ export const ImageScrapeDialog: React.FC<IImageScrapeDialogProps> = ({
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     imageTags,
     scraped.tags,
-    { mergeModeField: "image.tags" }
+    { mergeModeField: "image_tags" }
   );
 
   const [details, setDetails] = useState<ScrapeResult<string>>(

@@ -78,7 +78,7 @@ export const GroupScrapeDialog: React.FC<IGroupScrapeDialogProps> = ({
     setResult: setURLs,
     mergeMode: urlsMergeMode,
     onSetMergeMode: onSetURLsMergeMode,
-  } = useMergeModeStringList("group.urls", group.urls, scraped.urls);
+  } = useMergeModeStringList("group_urls", group.urls, scraped.urls);
   const [frontImage, setFrontImage] = useState<ScrapeResult<string>>(
     new ScrapeResult<string>(group.front_image, scraped.front_image)
   );
@@ -99,7 +99,7 @@ export const GroupScrapeDialog: React.FC<IGroupScrapeDialogProps> = ({
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     groupTags,
     scraped.tags,
-    { mergeModeField: "group.tags" }
+    { mergeModeField: "group_tags" }
   );
 
   const allFields = [

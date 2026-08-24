@@ -66,7 +66,7 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
     setResult: setURLs,
     mergeMode: urlsMergeMode,
     onSetMergeMode: onSetURLsMergeMode,
-  } = useMergeModeStringList("scene.urls", scene.urls, scraped.urls);
+  } = useMergeModeStringList("scene_urls", scene.urls, scraped.urls);
 
   const [date, setDate] = useState<ScrapeResult<string>>(
     new ScrapeResult<string>(scene.date, scraped.date)
@@ -133,7 +133,7 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     sceneTags,
     scraped.tags,
-    { endpoint, mergeModeField: "scene.tags" }
+    { endpoint, mergeModeField: "scene_tags" }
   );
 
   const [details, setDetails] = useState<ScrapeResult<string>>(

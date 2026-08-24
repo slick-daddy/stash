@@ -58,7 +58,7 @@ export const GalleryScrapeDialog: React.FC<IGalleryScrapeDialogProps> = ({
     setResult: setURLs,
     mergeMode: urlsMergeMode,
     onSetMergeMode: onSetURLsMergeMode,
-  } = useMergeModeStringList("gallery.urls", gallery.urls, scraped.urls);
+  } = useMergeModeStringList("gallery_urls", gallery.urls, scraped.urls);
   const [date, setDate] = useState<ScrapeResult<string>>(
     new ScrapeResult<string>(gallery.date, scraped.date)
   );
@@ -100,7 +100,7 @@ export const GalleryScrapeDialog: React.FC<IGalleryScrapeDialogProps> = ({
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     galleryTags,
     scraped.tags,
-    { mergeModeField: "gallery.tags" }
+    { mergeModeField: "gallery_tags" }
   );
 
   const [details, setDetails] = useState<ScrapeResult<string>>(
