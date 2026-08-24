@@ -101,8 +101,8 @@ export const ImageScrapeDialog: React.FC<IImageScrapeDialogProps> = ({
 
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     imageTags,
-    scraped.tags,
-    { mergeModeField: "image_tags" }
+    { mergeModeField: "image_tags" },
+    scraped.tags
   );
 
   const [details, setDetails] = useState<ScrapeResult<string>>(

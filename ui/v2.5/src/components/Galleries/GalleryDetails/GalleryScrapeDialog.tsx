@@ -99,8 +99,8 @@ export const GalleryScrapeDialog: React.FC<IGalleryScrapeDialogProps> = ({
 
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     galleryTags,
-    scraped.tags,
-    { mergeModeField: "gallery_tags" }
+    { mergeModeField: "gallery_tags" },
+    scraped.tags
   );
 
   const [details, setDetails] = useState<ScrapeResult<string>>(

@@ -17,8 +17,8 @@ export interface IUseScrapedTagsOptions {
 
 export function useScrapedTags(
   existingTags: Tag[],
-  scrapedTags?: GQL.Maybe<GQL.ScrapedTag[]>,
-  options: IUseScrapedTagsOptions = { mergeModeField: "tags" }
+  options: IUseScrapedTagsOptions,
+  scrapedTags?: GQL.Maybe<GQL.ScrapedTag[]>
 ) {
   const intl = useIntl();
   const Toast = useToast();

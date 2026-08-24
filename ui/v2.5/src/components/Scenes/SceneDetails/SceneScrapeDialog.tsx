@@ -132,8 +132,8 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
 
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     sceneTags,
-    scraped.tags,
-    { endpoint, mergeModeField: "scene_tags" }
+    { endpoint, mergeModeField: "scene_tags" },
+    scraped.tags
   );
 
   const [details, setDetails] = useState<ScrapeResult<string>>(

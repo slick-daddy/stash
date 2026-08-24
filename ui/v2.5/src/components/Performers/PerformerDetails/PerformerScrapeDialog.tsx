@@ -331,8 +331,8 @@ export const PerformerScrapeDialog: React.FC<IPerformerScrapeDialogProps> = (
 
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     props.performerTags,
-    props.scraped.tags,
-    { endpoint, mergeModeField: "performer_tags" }
+    { endpoint, mergeModeField: "performer_tags" },
+    props.scraped.tags
   );
 
   const [image, setImage] = useState<ScrapeResult<string>>(

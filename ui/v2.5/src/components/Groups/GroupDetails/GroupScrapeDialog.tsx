@@ -98,8 +98,8 @@ export const GroupScrapeDialog: React.FC<IGroupScrapeDialogProps> = ({
 
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     groupTags,
-    scraped.tags,
-    { mergeModeField: "group_tags" }
+    { mergeModeField: "group_tags" },
+    scraped.tags
   );
 
   const allFields = [
