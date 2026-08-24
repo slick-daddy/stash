@@ -12,18 +12,18 @@ import { useMergeModeObjectList } from "./mergeMode";
 export interface IUseScrapedTagsOptions {
   endpoint?: string;
   // UIConfig key used to persist the merge mode for the tags field
-  mergeModeField?: string;
+  mergeModeField: string;
 }
 
 export function useScrapedTags(
   existingTags: Tag[],
   scrapedTags?: GQL.Maybe<GQL.ScrapedTag[]>,
-  options?: IUseScrapedTagsOptions
+  options: IUseScrapedTagsOptions = { mergeModeField: "tags" }
 ) {
   const intl = useIntl();
   const Toast = useToast();
 
-  const { endpoint, mergeModeField } = options ?? {};
+  const { endpoint, mergeModeField } = options;
 
   const {
     result: tags,
@@ -31,7 +31,7 @@ export function useScrapedTags(
     mergeMode,
     onSetMergeMode,
   } = useMergeModeObjectList<GQL.ScrapedTag>(
-    mergeModeField ?? "tags",
+    mergeModeField,
     existingTags.map((t) => ({
       stored_id: t.id,
       name: t.name,
