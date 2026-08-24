@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { useApolloClient } from "@apollo/client";
 import { Button, ButtonGroup, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useIntl } from "react-intl";
 import { ScrapeListMergeMode } from "src/core/config";
-import * as GQL from "src/core/generated-graphql";
 import { useConfigureUISetting } from "src/core/StashService";
 import { useConfigurationContextOptional } from "src/hooks/Config";
 import { useToast } from "src/hooks/Toast";
@@ -14,32 +12,29 @@ function isValidMergeMode(mode: unknown): mode is ScrapeListMergeMode {
   return mode === "merge" || mode === "overwrite";
 }
 
-// scrapeDialogMergeModes is stored as a single map under one config key, so
-// concurrent per-field saves are read-modify-write operations on shared
-// state. A dialog mounts one hook per list field, and each spreads the map
-// before writing its own entry. Serialize the saves through a shared chain
-// so each runs after the previous one has written back, and each reads the
-// freshest map rather than racing on a stale snapshot.
-let mergeModeSaveQueue: Promise<unknown> = Promise.resolve();
-
-function enqueueMergeModeSave(save: () => Promise<unknown>): Promise<unknown> {
-  const next = mergeModeSaveQueue.then(save, save);
-  // Keep the chain alive even if a save rejects, without surfacing an
-  // unhandled rejection on the shared queue itself.
-  mergeModeSaveQueue = next.catch(() => undefined);
-  return next;
+// isEqualList returns true if v1 and v2 have the same length and each value
+// in v1 is equal (per isEqual) to the value at the same position in v2.
+function isEqualList<T>(
+  isEqual: (v1: T, v2: T) => boolean
+): (v1: T[], v2: T[]) => boolean {
+  return (v1, v2) =>
+    v1.length === v2.length && v1.every((v, i) => isEqual(v, v2[i]));
 }
 
 // usePersistedMergeMode returns the persisted merge mode for the given field,
 // falling back to the given default, and a function to persist a new mode in
 // the UI configuration.
+//
+// The backend splits configuration keys on "." and writes single leaves, so
+// each field is persisted under its own key (eg
+// scrapeDialogMergeModes.scene_urls). Field names must therefore not contain
+// periods; callers use underscore-separated names.
 function usePersistedMergeMode(
   field: string,
   defaultMode: ScrapeListMergeMode
 ) {
   const Toast = useToast();
   const context = useConfigurationContextOptional();
-  const client = useApolloClient();
   const [saveUISetting] = useConfigureUISetting();
 
   const mergeModes = context?.configuration?.ui?.scrapeDialogMergeModes;
@@ -48,26 +43,11 @@ function usePersistedMergeMode(
 
   async function persistMode(mode: ScrapeListMergeMode) {
     try {
-      await enqueueMergeModeSave(() => {
-        // Read the freshest merge modes inside the queued task, after any
-        // preceding save has written back to the cache. The render-time
-        // snapshot may be stale, so spreading it would drop other fields'
-        // preferences.
-        const cached = client.readQuery<GQL.ConfigurationQuery>({
-          query: GQL.ConfigurationDocument,
-        });
-        const latestModes =
-          cached?.configuration?.ui?.scrapeDialogMergeModes ?? mergeModes;
-
-        return saveUISetting({
-          variables: {
-            key: "scrapeDialogMergeModes",
-            value: {
-              ...latestModes,
-              [field]: mode,
-            },
-          },
-        });
+      await saveUISetting({
+        variables: {
+          key: `scrapeDialogMergeModes.${field}`,
+          value: mode,
+        },
       });
     } catch (e) {
       Toast.error(e);
