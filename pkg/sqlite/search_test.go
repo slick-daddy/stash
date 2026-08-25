@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -424,10 +425,9 @@ func TestSearchCountsMatchListQuery(t *testing.T) {
 	})
 }
 
-// TestSearchSceneCountsMatchListQuery documents the mismatch between
-// the unified scene search, which matches titles only, and the scenes
-// list page q filter, which also matches details, file paths,
-// fingerprints and marker titles.
+// TestSearchSceneCountsMatchListQuery verifies that the unified scene
+// search matches the same sources as the scenes list page q filter:
+// title, details, file path, fingerprints and marker titles.
 func TestSearchSceneCountsMatchListQuery(t *testing.T) {
 	runWithRollbackTxn(t, "search scene counts match list query", func(t *testing.T, ctx context.Context) {
 		sqb := db.Scene
@@ -455,6 +455,101 @@ func TestSearchSceneCountsMatchListQuery(t *testing.T) {
 			}
 		}
 
+		// a scene matching only via a marker title
+		tag := &models.Tag{Name: "elena marker tag"}
+		err := db.Tag.Create(ctx, &models.CreateTagInput{Tag: tag})
+		if err != nil {
+			t.Fatalf("Error creating tag: %s", err.Error())
+		}
+
+		markerScene := &models.Scene{Title: "unrelated marker scene"}
+		err = sqb.Create(ctx, markerScene, nil)
+		if err != nil {
+			t.Fatalf("Error creating scene: %s", err.Error())
+		}
+
+		marker := models.SceneMarker{
+			Title:        "elena marker",
+			Seconds:      1,
+			SceneID:      markerScene.ID,
+			PrimaryTagID: tag.ID,
+		}
+		if err := db.SceneMarker.Create(ctx, &marker); err != nil {
+			t.Fatalf("Error creating marker: %s", err.Error())
+		}
+
+		// a scene matching only via its file path
+		folder := &models.Folder{
+			Path: "/elena folder",
+			DirEntry: models.DirEntry{
+				ModTime: time.Now(),
+			},
+		}
+		if err := db.Folder.Create(ctx, folder); err != nil {
+			t.Fatalf("Error creating folder: %s", err.Error())
+		}
+
+		pathFile := &models.VideoFile{
+			BaseFile: &models.BaseFile{
+				Basename:       "some other name.mp4",
+				ParentFolderID: folder.ID,
+				DirEntry: models.DirEntry{
+					ModTime: time.Now(),
+				},
+				Fingerprints: []models.Fingerprint{
+					{
+						Type:        models.FingerprintTypeOshash,
+						Fingerprint: "unrelated hash",
+					},
+				},
+			},
+		}
+		if err := db.File.Create(ctx, pathFile); err != nil {
+			t.Fatalf("Error creating file: %s", err.Error())
+		}
+
+		pathScene := &models.Scene{Title: "unrelated path scene"}
+		err = sqb.Create(ctx, pathScene, []models.FileID{pathFile.ID})
+		if err != nil {
+			t.Fatalf("Error creating scene: %s", err.Error())
+		}
+
+		// a scene matching only via a file fingerprint
+		fpFolder := &models.Folder{
+			Path: "/plain folder",
+			DirEntry: models.DirEntry{
+				ModTime: time.Now(),
+			},
+		}
+		if err := db.Folder.Create(ctx, fpFolder); err != nil {
+			t.Fatalf("Error creating folder: %s", err.Error())
+		}
+
+		fpFile := &models.VideoFile{
+			BaseFile: &models.BaseFile{
+				Basename:       "another video.mp4",
+				ParentFolderID: fpFolder.ID,
+				DirEntry: models.DirEntry{
+					ModTime: time.Now(),
+				},
+				Fingerprints: []models.Fingerprint{
+					{
+						Type:        models.FingerprintTypeOshash,
+						Fingerprint: "elena oshash",
+					},
+				},
+			},
+		}
+		if err := db.File.Create(ctx, fpFile); err != nil {
+			t.Fatalf("Error creating file: %s", err.Error())
+		}
+
+		fpScene := &models.Scene{Title: "unrelated fingerprint scene"}
+		err = sqb.Create(ctx, fpScene, []models.FileID{fpFile.ID})
+		if err != nil {
+			t.Fatalf("Error creating scene: %s", err.Error())
+		}
+
 		const term = "elena"
 
 		results, err := db.Search.Search(ctx, models.SearchInput{
@@ -471,9 +566,13 @@ func TestSearchSceneCountsMatchListQuery(t *testing.T) {
 			t.Fatalf("Error querying scenes: %s", err.Error())
 		}
 
+		// nine scenes: three by title, three via details, and one each
+		// via marker title, file path and fingerprint
+		assert.Equal(t, 9, listCount)
 		assert.Equal(t,
 			listCount,
 			results.TotalCounts.Scenes,
 			"scenes search count must match the scenes list page count for the same term")
+		assert.Len(t, results.Scenes, 9)
 	})
 }
