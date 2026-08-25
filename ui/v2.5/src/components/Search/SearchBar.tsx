@@ -28,7 +28,8 @@ export const SearchBar: React.FC = () => {
   const [term, setTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  // -1 means nothing is keyboard-selected; recents open unselected
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const desktopInputRef = useRef<HTMLInputElement>(null);
@@ -60,7 +61,7 @@ export const SearchBar: React.FC = () => {
         addRecentSearch(trimmedTerm);
       }
       navigate(href);
-      setSelectedIndex(0);
+      setSelectedIndex(-1);
     },
     [addRecentSearch, navigate, trimmedTerm]
   );
@@ -93,7 +94,7 @@ export const SearchBar: React.FC = () => {
   const closeOverlay = useCallback(() => {
     setOpen(false);
     setMobileOpen(false);
-    setSelectedIndex(0);
+    setSelectedIndex(-1);
   }, []);
 
   useOnOutsideClick(containerRef as React.RefObject<HTMLElement>, () =>
@@ -133,15 +134,16 @@ export const SearchBar: React.FC = () => {
         case "Enter": {
           e.preventDefault();
 
-          if (!trimmedTerm) {
-            if (
-              recentSearches.length > 0 &&
-              selectedIndex < recentSearches.length
-            ) {
-              selectRecent(recentSearches[selectedIndex]);
-            }
-            break;
+        if (!trimmedTerm) {
+          if (
+            recentSearches.length > 0 &&
+            selectedIndex !== -1 &&
+            selectedIndex < recentSearches.length
+          ) {
+            selectRecent(recentSearches[selectedIndex]);
           }
+          break;
+        }
 
           // navigate to the selected item in the flattened list of
           // result rows and "see all" actions
@@ -180,7 +182,7 @@ export const SearchBar: React.FC = () => {
           value={term}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setTerm(e.target.value);
-            setSelectedIndex(0);
+            setSelectedIndex(e.target.value ? 0 : -1);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
@@ -198,7 +200,7 @@ export const SearchBar: React.FC = () => {
             className="btn minimal header-search-clear"
             onClick={() => {
               setTerm("");
-              setSelectedIndex(0);
+              setSelectedIndex(-1);
               desktopInputRef.current?.focus();
             }}
           >
@@ -235,7 +237,7 @@ export const SearchBar: React.FC = () => {
           })}
           onClick={() => {
             setMobileOpen(true);
-            setSelectedIndex(0);
+            setSelectedIndex(-1);
           }}
         >
           <Icon icon={faSearch} />
@@ -268,7 +270,7 @@ export const SearchBar: React.FC = () => {
             autoFocus
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setTerm(e.target.value);
-              setSelectedIndex(0);
+              setSelectedIndex(e.target.value ? 0 : -1);
             }}
             onKeyDown={onKeyDown}
             autoComplete="off"
