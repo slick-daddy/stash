@@ -5,6 +5,7 @@ package sqlite_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -311,5 +312,114 @@ func TestSearchEmptyTerm(t *testing.T) {
 		assert.Equal(t, models.SearchResultCounts{}, results.TotalCounts)
 
 		return nil
+	})
+}
+
+// TestSearchCountsMatchListQuery verifies that unified search counts
+// agree with the corresponding list page query for the same term. The
+// "see all" link navigates from the header search to the list page, so
+// the two must not disagree.
+func TestSearchCountsMatchListQuery(t *testing.T) {
+	runWithRollbackTxn(t, "search counts match list query", func(t *testing.T, ctx context.Context) {
+		const term = "nata"
+		aliasOnly := []string{"nata alias"}
+
+		// performers: two matching by name, four by alias only
+		for _, n := range []string{"nata lee", "zed natalie"} {
+			err := db.Performer.Create(ctx, &models.CreatePerformerInput{
+				Performer: &models.Performer{Name: n},
+			})
+			if err != nil {
+				t.Fatalf("Error creating performer: %s", err.Error())
+			}
+		}
+		for i := range 4 {
+			err := db.Performer.Create(ctx, &models.CreatePerformerInput{
+				Performer: &models.Performer{
+					Name:    fmt.Sprintf("unrelated performer %d", i),
+					Aliases: models.NewRelatedStrings(aliasOnly),
+				},
+			})
+			if err != nil {
+				t.Fatalf("Error creating performer: %s", err.Error())
+			}
+		}
+
+		// studios: one matching by name, one by alias only
+		for _, s := range []*models.Studio{
+			{Name: "nata studio"},
+			{Name: "unrelated studio", Aliases: models.NewRelatedStrings(aliasOnly)},
+		} {
+			err := db.Studio.Create(ctx, &models.CreateStudioInput{Studio: s})
+			if err != nil {
+				t.Fatalf("Error creating studio: %s", err.Error())
+			}
+		}
+
+		// tags: one matching by name, one by alias only, one by sort name
+		for _, tg := range []*models.Tag{
+			{Name: "nata tag"},
+			{Name: "unrelated tag", Aliases: models.NewRelatedStrings(aliasOnly)},
+			{Name: "another unrelated tag", SortName: "nata sort"},
+		} {
+			err := db.Tag.Create(ctx, &models.CreateTagInput{Tag: tg})
+			if err != nil {
+				t.Fatalf("Error creating tag: %s", err.Error())
+			}
+		}
+
+		// groups: aliases are a plain column; one name match, one alias
+		for _, g := range []*models.Group{
+			{Name: "nata group"},
+			{Name: "unrelated group", Aliases: "nata alias"},
+		} {
+			err := db.Group.Create(ctx, g)
+			if err != nil {
+				t.Fatalf("Error creating group: %s", err.Error())
+			}
+		}
+
+		results, err := db.Search.Search(ctx, models.SearchInput{
+			Term:         term,
+			LimitPerType: 10,
+		})
+		if err != nil {
+			t.Fatalf("Error searching: %s", err.Error())
+		}
+
+		q := term
+		findFilter := &models.FindFilterType{Q: &q}
+
+		listCount := func(count int, err error) int {
+			if err != nil {
+				t.Fatalf("Error querying list count: %s", err.Error())
+			}
+			return count
+		}
+
+		assert.Equal(t,
+			listCount(db.Performer.QueryCount(ctx, nil, findFilter)),
+			results.TotalCounts.Performers,
+			"performers search count must match the performers list page")
+
+		assert.Equal(t,
+			listCount(db.Studio.QueryCount(ctx, nil, findFilter)),
+			results.TotalCounts.Studios,
+			"studios search count must match the studios list page")
+
+		_, tagsCount, err := db.Tag.Query(ctx, nil, findFilter)
+		if err != nil {
+			t.Fatalf("Error querying tags: %s", err.Error())
+		}
+
+		assert.Equal(t,
+			tagsCount,
+			results.TotalCounts.Tags,
+			"tags search count must match the tags list page")
+
+		assert.Equal(t,
+			listCount(db.Group.QueryCount(ctx, nil, findFilter)),
+			results.TotalCounts.Groups,
+			"groups search count must match the groups list page")
 	})
 }

@@ -217,8 +217,43 @@ LIMIT ?`
 	return ret, count, nil
 }
 
+// namedSearchOptions configures additional term matching for
+// searchByName. The extra columns and alias tables mirror what the
+// corresponding list page's q filter matches, so that the "see all"
+// count shown in the header search agrees with the list it opens.
+type namedSearchOptions struct {
+	// extraColumns are additional columns on the entity table that are
+	// matched against the term.
+	extraColumns []string
+
+	// aliasTable, when non-empty, adds an EXISTS clause matching the
+	// table's alias column against the term, joined on aliasFK equal to
+	// the entity table's id.
+	aliasTable string
+	aliasFK    string
+}
+
+// nameMatchClauses returns the WHERE conditions matching the term
+// against the given name column plus anything configured in opts.
+func nameMatchClauses(table string, nameColumn string, opts namedSearchOptions) []string {
+	clauses := []string{nameColumn + ` LIKE ? ESCAPE '\'`}
+	for _, c := range opts.extraColumns {
+		clauses = append(clauses, c+` LIKE ? ESCAPE '\'`)
+	}
+	if opts.aliasTable != "" {
+		clauses = append(clauses, fmt.Sprintf(
+			`EXISTS (SELECT 1 FROM %[1]s WHERE %[1]s.%[2]s = %[3]s.id AND %[1]s.alias LIKE ? ESCAPE '\')`,
+			opts.aliasTable, opts.aliasFK, table,
+		))
+	}
+	return clauses
+}
+
 func (qb *SearchStore) searchPerformers(ctx context.Context, term string, limit int) ([]*models.PerformerSearchResult, int, error) {
-	rows, count, err := searchByName(ctx, "performers", "performers.name", term, limit)
+	rows, count, err := searchByName(ctx, "performers", "performers.name", term, limit, namedSearchOptions{
+		aliasTable: "performer_aliases",
+		aliasFK:    "performer_id",
+	})
 	if err != nil {
 		return nil, 0, err
 	}
@@ -235,7 +270,10 @@ func (qb *SearchStore) searchPerformers(ctx context.Context, term string, limit 
 }
 
 func (qb *SearchStore) searchStudios(ctx context.Context, term string, limit int) ([]*models.StudioSearchResult, int, error) {
-	rows, count, err := searchByName(ctx, "studios", "studios.name", term, limit)
+	rows, count, err := searchByName(ctx, "studios", "studios.name", term, limit, namedSearchOptions{
+		aliasTable: "studio_aliases",
+		aliasFK:    "studio_id",
+	})
 	if err != nil {
 		return nil, 0, err
 	}
@@ -252,7 +290,9 @@ func (qb *SearchStore) searchStudios(ctx context.Context, term string, limit int
 }
 
 func (qb *SearchStore) searchGroups(ctx context.Context, term string, limit int) ([]*models.GroupSearchResult, int, error) {
-	rows, count, err := searchByName(ctx, "groups", "groups.name", term, limit)
+	rows, count, err := searchByName(ctx, "groups", "groups.name", term, limit, namedSearchOptions{
+		extraColumns: []string{"groups.aliases"},
+	})
 	if err != nil {
 		return nil, 0, err
 	}
@@ -269,22 +309,33 @@ func (qb *SearchStore) searchGroups(ctx context.Context, term string, limit int)
 }
 
 // searchByName performs a ranked name search on the given table. The
-// table must have id and name columns.
-func searchByName(ctx context.Context, table string, nameColumn string, term string, limit int) ([]*searchNameRow, int, error) {
-	whereClause := `WHERE ` + nameColumn + ` LIKE ? ESCAPE '\'`
+// table must have id and name columns. Matching beyond the name column
+// is configured via opts, mirroring the list page's q filter so that
+// the count agrees with the list the "see all" action opens. Rows are
+// ranked on the name column only: alias matches rank after exact and
+// prefix name matches.
+func searchByName(ctx context.Context, table string, nameColumn string, term string, limit int, opts namedSearchOptions) ([]*searchNameRow, int, error) {
+	clauses := nameMatchClauses(table, nameColumn, opts)
+	whereClause := ""
+	var matchArgs []interface{}
+	if len(clauses) > 0 {
+		whereClause = "WHERE " + strings.Join(clauses, " OR ")
+		for range clauses {
+			matchArgs = append(matchArgs, likeTerm(term))
+		}
+	}
 
 	countQuery := `SELECT COUNT(*) FROM ` + table + ` ` + whereClause
 
 	var count int
-	if err := dbWrapper.Get(ctx, &count, countQuery, likeTerm(term)); err != nil {
+	if err := dbWrapper.Get(ctx, &count, countQuery, matchArgs...); err != nil {
 		return nil, 0, err
 	}
 
 	query := `SELECT id, ` + nameColumn + ` AS name FROM ` + table + ` ` + whereClause +
 		` ORDER BY ` + searchRankExpr(nameColumn) + `, ` + nameColumn + ` COLLATE NOCASE ASC, id ASC LIMIT ?`
 
-	args := []interface{}{likeTerm(term)}
-	args = append(args, rankArgs(term)...)
+	args := append(append([]interface{}{}, matchArgs...), rankArgs(term)...)
 	args = append(args, limit)
 
 	var rows []*searchNameRow
@@ -296,12 +347,17 @@ func searchByName(ctx context.Context, table string, nameColumn string, term str
 }
 
 func (qb *SearchStore) searchTags(ctx context.Context, term string, limit int) ([]*models.TagSearchResult, int, error) {
-	const whereClause = `WHERE tags.name LIKE ? ESCAPE '\'`
+	// mirrors the tags list page q filter: name, aliases and sort name
+	whereClause := `WHERE tags.name LIKE ? ESCAPE '\'
+		OR tags.sort_name LIKE ? ESCAPE '\'
+		OR EXISTS (SELECT 1 FROM tag_aliases WHERE tag_aliases.tag_id = tags.id AND tag_aliases.alias LIKE ? ESCAPE '\')`
 
 	countQuery := `SELECT COUNT(*) FROM tags ` + whereClause
 
+	matchArgs := []interface{}{likeTerm(term), likeTerm(term), likeTerm(term)}
+
 	var count int
-	if err := dbWrapper.Get(ctx, &count, countQuery, likeTerm(term)); err != nil {
+	if err := dbWrapper.Get(ctx, &count, countQuery, matchArgs...); err != nil {
 		return nil, 0, err
 	}
 
@@ -313,8 +369,7 @@ FROM tags
 ORDER BY ` + searchRankExpr(`tags.name`) + `, tags.name COLLATE NOCASE ASC, tags.id ASC
 LIMIT ?`
 
-	args := []interface{}{likeTerm(term)}
-	args = append(args, rankArgs(term)...)
+	args := append(append([]interface{}{}, matchArgs...), rankArgs(term)...)
 	args = append(args, limit)
 
 	var rows []*searchTagRow
