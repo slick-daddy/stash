@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { Form } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
@@ -101,6 +101,33 @@ export const SearchBar: React.FC = () => {
   useOnOutsideClick(containerRef as React.RefObject<HTMLElement>, () =>
     setOpen(false)
   );
+
+  // ctrl+k / cmd+k opens and focuses the search bar from anywhere,
+  // including other text fields. A document listener is used instead
+  // of Mousetrap because its default behaviour ignores events from
+  // input elements, and preventDefault is required to override the
+  // browser's reserved handling of the combination.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const mod = e.ctrlKey || e.metaKey;
+      if (e.key.toLowerCase() !== "k" || !mod || e.altKey || e.shiftKey) {
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (mobileOpen) {
+        mobileInputRef.current?.focus();
+        return;
+      }
+      setOpen(true);
+      desktopInputRef.current?.focus();
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
 
   const selectRecent = useCallback(
     (recent: string) => {
