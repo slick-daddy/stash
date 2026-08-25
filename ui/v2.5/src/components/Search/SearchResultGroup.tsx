@@ -1,8 +1,8 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
-import { Icon } from "src/components/Shared/Icon";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+
+import { Icon } from "src/components/Shared/Icon";
 
 interface ISearchResultGroupProps {
   typeLabel: string;
@@ -43,7 +43,6 @@ export const SearchResultGroup: React.FC<ISearchResultGroupProps> = ({
         onClick={onSeeAll}
       >
         <span>{seeAllMessage}</span>
-        <Icon icon={faArrowRight} className="ml-2" />
       </button>
     </div>
   );
