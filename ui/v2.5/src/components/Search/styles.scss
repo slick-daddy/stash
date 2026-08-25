@@ -49,7 +49,12 @@
 }
 
 .header-search-dropdown {
+  background-color: $secondary;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+  color: $text-color;
   left: 0;
+  overflow: hidden;
   position: absolute;
   right: 0;
   top: calc(100% + 4px);
@@ -116,7 +121,7 @@
     width: 100%;
 
     &:hover:not(.disabled) {
-      background-color: $secondary;
+      background-color: rgba(138, 155, 168, 0.15);
     }
 
     &.selected {
@@ -213,7 +218,7 @@
 
   .search-skeleton-thumb {
     animation: search-skeleton-pulse 1.5s ease-in-out infinite;
-    background: $secondary;
+    background: rgba(138, 155, 168, 0.3);
     border-radius: 2px;
     flex-shrink: 0;
     height: 2.25rem;
@@ -227,7 +232,7 @@
 
   .search-skeleton-line {
     animation: search-skeleton-pulse 1.5s ease-in-out infinite;
-    background: $secondary;
+    background: rgba(138, 155, 168, 0.3);
     border-radius: 2px;
     height: 0.7rem;
     margin: 0.25rem 0;
