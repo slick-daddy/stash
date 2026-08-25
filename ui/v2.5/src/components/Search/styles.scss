@@ -195,8 +195,8 @@
   .search-result-see-all {
     color: $text-color;
     font-weight: bold;
-    justify-content: center;
-    padding: 0.4rem;
+    justify-content: flex-end;
+    padding: 0.4rem 0.75rem 0.4rem 0.4rem;
 
     &:hover {
       background-color: rgba(138, 155, 168, 0.15);
