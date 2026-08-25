@@ -423,3 +423,57 @@ func TestSearchCountsMatchListQuery(t *testing.T) {
 			"groups search count must match the groups list page")
 	})
 }
+
+// TestSearchSceneCountsMatchListQuery documents the mismatch between
+// the unified scene search, which matches titles only, and the scenes
+// list page q filter, which also matches details, file paths,
+// fingerprints and marker titles.
+func TestSearchSceneCountsMatchListQuery(t *testing.T) {
+	runWithRollbackTxn(t, "search scene counts match list query", func(t *testing.T, ctx context.Context) {
+		sqb := db.Scene
+
+		// three scenes matching by title
+		for i := range 3 {
+			scene := &models.Scene{
+				Title: fmt.Sprintf("elena scene %d", i),
+			}
+			err := sqb.Create(ctx, scene, nil)
+			if err != nil {
+				t.Fatalf("Error creating scene: %s", err.Error())
+			}
+		}
+
+		// three scenes matching only via their details text
+		for i := range 3 {
+			scene := &models.Scene{
+				Title:   fmt.Sprintf("unrelated scene %d", i),
+				Details: "features elena",
+			}
+			err := sqb.Create(ctx, scene, nil)
+			if err != nil {
+				t.Fatalf("Error creating scene: %s", err.Error())
+			}
+		}
+
+		const term = "elena"
+
+		results, err := db.Search.Search(ctx, models.SearchInput{
+			Term:         term,
+			LimitPerType: 10,
+		})
+		if err != nil {
+			t.Fatalf("Error searching scenes: %s", err.Error())
+		}
+
+		q := term
+		listCount, err := sqb.QueryCount(ctx, nil, &models.FindFilterType{Q: &q})
+		if err != nil {
+			t.Fatalf("Error querying scenes: %s", err.Error())
+		}
+
+		assert.Equal(t,
+			listCount,
+			results.TotalCounts.Scenes,
+			"scenes search count must match the scenes list page count for the same term")
+	})
+}

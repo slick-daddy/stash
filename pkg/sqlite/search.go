@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/guregu/null.v4"
@@ -169,12 +170,40 @@ func rankArgs(term string) []interface{} {
 }
 
 func (qb *SearchStore) searchScenes(ctx context.Context, term string, limit int) ([]*models.SceneSearchResult, int, error) {
-	const whereClause = `WHERE COALESCE(scenes.title, '') LIKE ? ESCAPE '\'`
+	// mirrors the scenes list page q filter: title, details, file path,
+	// fingerprints and marker titles. EXISTS clauses avoid duplicating
+	// rows for scenes with several matching files or markers.
+	pathExpr := "folders.path || '" + string(filepath.Separator) + "' || files.basename"
+	whereClause := `WHERE COALESCE(scenes.title, '') LIKE ? ESCAPE '\'
+		OR COALESCE(scenes.details, '') LIKE ? ESCAPE '\'
+		OR EXISTS (
+			SELECT 1 FROM scenes_files
+			JOIN files ON files.id = scenes_files.file_id
+			JOIN folders ON folders.id = files.parent_folder_id
+			WHERE scenes_files.scene_id = scenes.id AND ` + pathExpr + ` LIKE ? ESCAPE '\'
+		)
+		OR EXISTS (
+			SELECT 1 FROM scenes_files
+			JOIN files_fingerprints ON files_fingerprints.file_id = scenes_files.file_id
+			WHERE scenes_files.scene_id = scenes.id AND files_fingerprints.fingerprint LIKE ? ESCAPE '\'
+		)
+		OR EXISTS (
+			SELECT 1 FROM scene_markers
+			WHERE scene_markers.scene_id = scenes.id AND scene_markers.title LIKE ? ESCAPE '\'
+		)`
 
 	countQuery := `SELECT COUNT(*) FROM scenes ` + whereClause
 
+	matchArgs := []interface{}{
+		likeTerm(term),
+		likeTerm(term),
+		likeTerm(term),
+		likeTerm(term),
+		likeTerm(term),
+	}
+
 	var count int
-	if err := dbWrapper.Get(ctx, &count, countQuery, likeTerm(term)); err != nil {
+	if err := dbWrapper.Get(ctx, &count, countQuery, matchArgs...); err != nil {
 		return nil, 0, err
 	}
 
@@ -189,8 +218,7 @@ LEFT JOIN video_files ON video_files.file_id = scenes_files.file_id
 ORDER BY ` + searchRankExpr(`COALESCE(scenes.title, '')`) + `, COALESCE(scenes.title, '') COLLATE NOCASE ASC, scenes.id ASC
 LIMIT ?`
 
-	args := []interface{}{likeTerm(term)}
-	args = append(args, rankArgs(term)...)
+	args := append(append([]interface{}{}, matchArgs...), rankArgs(term)...)
 	args = append(args, limit)
 
 	var rows []*searchSceneRow
