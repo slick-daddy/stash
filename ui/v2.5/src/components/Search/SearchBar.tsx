@@ -28,7 +28,8 @@ export const SearchBar: React.FC = () => {
   const [term, setTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  // -1 means nothing is keyboard-selected; recents open unselected
+  // -1 means nothing is keyboard-selected; selection only appears once
+  // the user navigates with the arrow keys
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -105,7 +106,7 @@ export const SearchBar: React.FC = () => {
     (recent: string) => {
       addRecentSearch(recent);
       setTerm(recent);
-      setSelectedIndex(0);
+      setSelectedIndex(-1);
 
       // focus the input so the user can keep typing
       const input = mobileOpen
@@ -184,7 +185,7 @@ export const SearchBar: React.FC = () => {
           value={term}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setTerm(e.target.value);
-            setSelectedIndex(e.target.value ? 0 : -1);
+            setSelectedIndex(-1);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
@@ -272,7 +273,7 @@ export const SearchBar: React.FC = () => {
             autoFocus
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setTerm(e.target.value);
-              setSelectedIndex(e.target.value ? 0 : -1);
+              setSelectedIndex(-1);
             }}
             onKeyDown={onKeyDown}
             autoComplete="off"
