@@ -65,7 +65,9 @@
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
   color: $text-color;
   left: 0;
-  overflow: hidden;
+  max-height: calc(100vh - 8rem);
+  overflow-x: hidden;
+  overflow-y: auto;
   position: absolute;
   right: 0;
   top: calc(100% + 4px);
