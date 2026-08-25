@@ -35,15 +35,17 @@ export const SearchResultGroup: React.FC<ISearchResultGroupProps> = ({
         </span>
       </div>
       {children}
-      <button
-        type="button"
-        className={`search-result-see-all btn minimal d-flex align-items-center${
-          seeAllSelected ? " selected" : ""
-        }`}
-        onClick={onSeeAll}
-      >
-        <span>{seeAllMessage}</span>
-      </button>
+      <div className="search-result-see-all-row d-flex justify-content-end">
+        <button
+          type="button"
+          className={`search-result-see-all btn minimal${
+            seeAllSelected ? " selected" : ""
+          }`}
+          onClick={onSeeAll}
+        >
+          <span>{seeAllMessage}</span>
+        </button>
+      </div>
     </div>
   );
 };
