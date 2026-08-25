@@ -6,7 +6,6 @@ import { Icon } from "src/components/Shared/Icon";
 
 interface ISearchResultGroupProps {
   typeLabel: string;
-  count: number;
   icon: IconDefinition;
   // message for the "See all N results" link
   seeAllMessage: React.ReactNode;
@@ -18,7 +17,6 @@ interface ISearchResultGroupProps {
 
 export const SearchResultGroup: React.FC<ISearchResultGroupProps> = ({
   typeLabel,
-  count,
   icon,
   seeAllMessage,
   onSeeAll,
@@ -30,9 +28,6 @@ export const SearchResultGroup: React.FC<ISearchResultGroupProps> = ({
       <div className="search-result-group-header d-flex align-items-center">
         <Icon icon={icon} className="search-result-group-icon" />
         <span className="search-result-group-type">{typeLabel}</span>
-        <span className="badge badge-secondary search-result-group-count">
-          {count}
-        </span>
       </div>
       {children}
       <div className="search-result-see-all-row d-flex justify-content-end">

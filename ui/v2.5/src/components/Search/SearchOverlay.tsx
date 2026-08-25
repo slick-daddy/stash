@@ -403,7 +403,6 @@ export const SearchOverlay: React.FC<ISearchOverlayProps> = ({
               id: group.typeLabel,
               defaultMessage: group.typeLabel,
             })}
-            count={group.total}
             icon={group.icon}
             seeAllMessage={group.seeAllMessage}
             seeAllSelected={selectedIndex === seeAllIndex}
