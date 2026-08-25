@@ -128,22 +128,24 @@ export const SearchBar: React.FC = () => {
         case "ArrowUp":
           if (itemCount > 0) {
             e.preventDefault();
-            setSelectedIndex((i) => (i - 1 + itemCount) % itemCount);
+            setSelectedIndex((i) =>
+              i === -1 ? itemCount - 1 : (i - 1 + itemCount) % itemCount
+            );
           }
           break;
         case "Enter": {
           e.preventDefault();
 
-        if (!trimmedTerm) {
-          if (
-            recentSearches.length > 0 &&
-            selectedIndex !== -1 &&
-            selectedIndex < recentSearches.length
-          ) {
-            selectRecent(recentSearches[selectedIndex]);
+          if (!trimmedTerm) {
+            if (
+              recentSearches.length > 0 &&
+              selectedIndex !== -1 &&
+              selectedIndex < recentSearches.length
+            ) {
+              selectRecent(recentSearches[selectedIndex]);
+            }
+            break;
           }
-          break;
-        }
 
           // navigate to the selected item in the flattened list of
           // result rows and "see all" actions
