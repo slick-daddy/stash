@@ -316,13 +316,10 @@ func (qb *SearchStore) searchGroups(ctx context.Context, term string, limit int)
 // prefix name matches.
 func searchByName(ctx context.Context, table string, nameColumn string, term string, limit int, opts namedSearchOptions) ([]*searchNameRow, int, error) {
 	clauses := nameMatchClauses(table, nameColumn, opts)
-	whereClause := ""
-	var matchArgs []interface{}
-	if len(clauses) > 0 {
-		whereClause = "WHERE " + strings.Join(clauses, " OR ")
-		for range clauses {
-			matchArgs = append(matchArgs, likeTerm(term))
-		}
+	whereClause := "WHERE " + strings.Join(clauses, " OR ")
+	matchArgs := make([]interface{}, 0, len(clauses))
+	for range clauses {
+		matchArgs = append(matchArgs, likeTerm(term))
 	}
 
 	countQuery := `SELECT COUNT(*) FROM ` + table + ` ` + whereClause
