@@ -57,6 +57,8 @@ func post84(ctx context.Context, db *sqlx.DB) error {
 		return fmt.Errorf("migrating folders: %w", err)
 	}
 
+	config.GetInstance().MigrateImageLightboxConfig()
+
 	return nil
 }
 
