@@ -16,7 +16,7 @@ import {
 import { Studio } from "src/components/Studios/StudioSelect";
 import { useCreateScrapedStudio } from "src/components/Shared/ScrapeDialog/createObjects";
 import { ScrapedStudioRow } from "src/components/Shared/ScrapeDialog/ScrapedObjectsRow";
-import { uniq } from "lodash-es";
+import { useMergeModeStringList } from "src/components/Shared/ScrapeDialog/mergeMode";
 import { Tag } from "src/components/Tags/TagSelect";
 import { useScrapedTags } from "src/components/Shared/ScrapeDialog/scrapedTags";
 
@@ -73,14 +73,12 @@ export const GroupScrapeDialog: React.FC<IGroupScrapeDialogProps> = ({
       scraped.studio?.stored_id ? scraped.studio : undefined
     )
   );
-  const [urls, setURLs] = useState<ScrapeResult<string[]>>(
-    new ScrapeResult<string[]>(
-      group.urls,
-      scraped.urls
-        ? uniq((group.urls ?? []).concat(scraped.urls ?? []))
-        : undefined
-    )
-  );
+  const {
+    result: urls,
+    setResult: setURLs,
+    mergeMode: urlsMergeMode,
+    onSetMergeMode: onSetURLsMergeMode,
+  } = useMergeModeStringList("group_urls", group.urls, scraped.urls);
   const [frontImage, setFrontImage] = useState<ScrapeResult<string>>(
     new ScrapeResult<string>(group.front_image, scraped.front_image)
   );
@@ -100,6 +98,7 @@ export const GroupScrapeDialog: React.FC<IGroupScrapeDialogProps> = ({
 
   const { tags, newTags, scrapedTagsRow, linkDialog } = useScrapedTags(
     groupTags,
+    { mergeModeField: "group_tags" },
     scraped.tags
   );
 
@@ -198,6 +197,8 @@ export const GroupScrapeDialog: React.FC<IGroupScrapeDialogProps> = ({
           title={intl.formatMessage({ id: "urls" })}
           result={urls}
           onChange={(value) => setURLs(value)}
+          mergeMode={urlsMergeMode}
+          onSetMergeMode={onSetURLsMergeMode}
         />
         {scrapedTagsRow}
         <ScrapedImageRow
