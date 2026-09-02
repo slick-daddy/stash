@@ -62,6 +62,20 @@ func TestFeetToCM(t *testing.T) {
 	}
 }
 
+func TestMappedInputPlaceholdersWithoutName(t *testing.T) {
+	config := mappedConfig{
+		"Name": {
+			Fixed: "{inputHostname}|{inputName}|{inputURL}",
+		},
+	}
+	q := &xpathQuery{url: "https://example.com/path"}
+
+	results := config.process(context.Background(), q, nil, nil)
+	if assert.Len(t, results, 1) {
+		assert.Equal(t, "example.com||https://example.com/path", results[0].mustString("Name"))
+	}
+}
+
 func Test_postProcessParseDate_Apply(t *testing.T) {
 	const internalDateFormat = "2006-01-02"
 
