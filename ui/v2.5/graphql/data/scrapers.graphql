@@ -177,6 +177,7 @@ fragment ScrapedSceneData on ScrapedScene {
   director
   urls
   date
+  production_date
   image
   remote_site_id
 
@@ -211,6 +212,7 @@ fragment ScrapedSceneData on ScrapedScene {
     hash
     algorithm
     duration
+    submissions
   }
 }
 
@@ -263,6 +265,7 @@ fragment ScrapedStashBoxSceneData on ScrapedScene {
   director
   url
   date
+  production_date
   image
   remote_site_id
   duration
@@ -282,6 +285,7 @@ fragment ScrapedStashBoxSceneData on ScrapedScene {
     hash
     algorithm
     duration
+    submissions
   }
 
   studio {
