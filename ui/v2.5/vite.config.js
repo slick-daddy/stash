@@ -31,6 +31,7 @@ export default defineConfig(() => {
     },
     optimizeDeps: {
       entries: "src/index.tsx",
+      include: ["thehandy"],
     },
     server: {
       port: 3000,
