@@ -6,7 +6,7 @@ import (
 	"github.com/stashapp/stash/pkg/models"
 )
 
-const singleFirstCharacterRegex = `^[\p{L}][.\-_ ]`
+const singleFirstCharacterRegex = `^(?:[\p{L}]$|[\p{L}][.\-_ ])`
 
 // Cache is used to cache queries that should not change across an autotag process.
 type Cache struct {
