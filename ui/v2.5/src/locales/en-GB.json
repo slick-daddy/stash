@@ -1209,6 +1209,7 @@
   "file": "file",
   "file_count": "File Count",
   "file_info": "File Info",
+  "file_birth_time": "File Birth Time",
   "file_mod_time": "File Modification Time",
   "files": "files",
   "files_amount": "{value} files",

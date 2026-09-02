@@ -4347,6 +4347,13 @@ func TestSceneQuerySorting(t *testing.T) {
 			-1,
 		},
 		{
+			"file birth time",
+			"file_birth_time",
+			models.SortDirectionEnumDesc,
+			-1,
+			-1,
+		},
+		{
 			"file size",
 			"filesize",
 			models.SortDirectionEnumDesc,
