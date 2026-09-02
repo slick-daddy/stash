@@ -20,6 +20,7 @@ import Mousetrap from "mousetrap";
 import SessionUtils from "src/utils/session";
 import { Icon } from "src/components/Shared/Icon";
 import { useConfigurationContext } from "src/hooks/Config";
+import { SearchBar } from "./Search/SearchBar";
 import { ManualStateContext } from "./Help/context";
 import { SettingsButton } from "./SettingsButton";
 import {
@@ -390,6 +391,8 @@ export const MainNavbar: React.FC = () => {
           <Button className="minimal brand-link d-inline-block">Stash</Button>
         </Link>
       </Navbar.Brand>
+
+      <SearchBar />
 
       <Nav className="navbar-buttons flex-row ml-auto order-xl-2">
         {!!newPath && (
