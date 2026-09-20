@@ -1021,6 +1021,7 @@ func (qb *ImageStore) QueryCount(ctx context.Context, imageFilter *models.ImageF
 var imageSortOptions = sortOptions{
 	"created_at",
 	"date",
+	"file_birth_time",
 	"file_count",
 	"file_mod_time",
 	"filesize",
@@ -1050,8 +1051,11 @@ func (qb *ImageStore) setImageSortAndPagination(q *queryBuilder, findFilter *mod
 		}
 
 		// translate sort field
-		if sort == "file_mod_time" {
+		switch sort {
+		case "file_mod_time":
 			sort = "mod_time"
+		case "file_birth_time":
+			sort = "birth_time"
 		}
 
 		addFilesJoin := func() {
@@ -1088,7 +1092,7 @@ func (qb *ImageStore) setImageSortAndPagination(q *queryBuilder, findFilter *mod
 			sortClause = getCountSort(imageTable, imagesTagsTable, imageIDColumn, direction)
 		case "performer_count":
 			sortClause = getCountSort(imageTable, performersImagesTable, imageIDColumn, direction)
-		case "mod_time", "filesize":
+		case "birth_time", "mod_time", "filesize":
 			addFilesJoin()
 			sortClause = getSort(sort, direction, "files")
 		case "resolution":

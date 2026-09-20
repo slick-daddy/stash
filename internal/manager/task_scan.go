@@ -218,7 +218,8 @@ func (j *ScanJob) queueFileFunc(ctx context.Context, f models.FS, zipFile *file.
 		ff := file.ScannedFile{
 			BaseFile: &models.BaseFile{
 				DirEntry: models.DirEntry{
-					ModTime: file.ModTime(info),
+					ModTime:   file.ModTime(info),
+					BirthTime: file.BirthTime(info),
 				},
 				Path:     storedPath,
 				Basename: filepath.Base(storedPath),
