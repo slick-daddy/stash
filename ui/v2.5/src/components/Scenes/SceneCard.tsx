@@ -360,28 +360,49 @@ interface ISceneSpecsOverlay {
   scene: GQL.SlimSceneDataFragment;
 }
 
+function getOverlayFrameRate(frameRate?: number | null) {
+  if (!frameRate || frameRate <= 0) return;
+
+  return Math.ceil(frameRate).toString();
+}
+
 export const SceneSpecsOverlay: React.FC<ISceneSpecsOverlay> = React.memo(
   PatchComponent("SceneCard.SceneSpecs", ({ scene }) => {
     const file = scene.files?.[0];
     if (!file) return null;
+
+    const resolution =
+      file.width && file.height
+        ? TextUtils.resolution(file.width, file.height)
+        : undefined;
+    const frameRate = getOverlayFrameRate(file.frame_rate);
+    const duration =
+      file.duration > 0
+        ? TextUtils.secondsToTimestamp(file.duration)
+        : undefined;
+
     return (
       <div className="scene-specs-overlay">
-        <span className="overlay-filesize extra-scene-info">
+        <span
+          className="overlay-filesize extra-scene-info"
+          data-value={file.size}
+        >
           <FileSize size={file.size} />
         </span>
-        {file.width && file.height ? (
-          <span className="overlay-resolution">
-            {TextUtils.resolution(file.width, file.height)}
+        {resolution && (
+          <span className="overlay-resolution" data-value={resolution}>
+            {resolution}
           </span>
-        ) : (
-          ""
         )}
-        {file.duration > 0 ? (
-          <span className="overlay-duration">
-            {TextUtils.secondsToTimestamp(file.duration)}
+        {frameRate && (
+          <span className="overlay-framerate" data-value={frameRate}>
+            {frameRate}
           </span>
-        ) : (
-          ""
+        )}
+        {duration && (
+          <span className="overlay-duration" data-value={duration}>
+            {duration}
+          </span>
         )}
       </div>
     );

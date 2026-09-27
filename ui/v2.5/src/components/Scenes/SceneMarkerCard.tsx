@@ -135,13 +135,17 @@ const SceneMarkerCardImage = PatchComponent(
     }
 
     function maybeRenderSceneSpecsOverlay() {
+      const duration = props.marker.end_seconds
+        ? TextUtils.secondsToTimestamp(
+            props.marker.end_seconds - props.marker.seconds
+          )
+        : undefined;
+
       return (
         <div className="scene-specs-overlay">
-          {props.marker.end_seconds && (
-            <span className="overlay-duration">
-              {TextUtils.secondsToTimestamp(
-                props.marker.end_seconds - props.marker.seconds
-              )}
+          {duration && (
+            <span className="overlay-duration" data-value={duration}>
+              {duration}
             </span>
           )}
         </div>
