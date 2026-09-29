@@ -1,0 +1,82 @@
+enum SearchEntityType {
+  SCENE
+  PERFORMER
+  TAG
+  STUDIO
+  GALLERY
+  GROUP
+  MARKER
+}
+
+input SearchInput {
+  term: String!
+  limitPerType: Int = 10
+  types: [SearchEntityType!]
+}
+
+type ScenePreview {
+  id: ID!
+  title: String!
+  thumbnailPath: String
+  studioName: String
+  duration: Int
+}
+
+type PerformerPreview {
+  id: ID!
+  name: String!
+  imagePath: String
+}
+
+type TagPreview {
+  id: ID!
+  name: String!
+  sceneCount: Int
+}
+
+type StudioPreview {
+  id: ID!
+  name: String!
+  imagePath: String
+}
+
+type GalleryPreview {
+  id: ID!
+  title: String!
+  coverPath: String
+}
+
+type GroupPreview {
+  id: ID!
+  name: String!
+  thumbnailPath: String
+}
+
+type MarkerPreview {
+  id: ID!
+  title: String!
+  sceneId: ID!
+  sceneName: String
+  seconds: Float
+}
+
+type SearchResultCounts {
+  scenes: Int!
+  performers: Int!
+  tags: Int!
+  studios: Int!
+  galleries: Int!
+  groups: Int!
+  markers: Int!
+}
+
+type SearchResults {
+  scenes: [ScenePreview!]!
+  performers: [PerformerPreview!]!
+  tags: [TagPreview!]!
+  studios: [StudioPreview!]!
+  galleries: [GalleryPreview!]!
+  groups: [GroupPreview!]!
+  markers: [MarkerPreview!]!
+  totalCounts: SearchResultCounts!
+}

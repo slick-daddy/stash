@@ -1,0 +1,52 @@
+query Search($input: SearchInput!) {
+  search(input: $input) {
+    scenes {
+      id
+      title
+      thumbnailPath
+      studioName
+      duration
+    }
+    performers {
+      id
+      name
+      imagePath
+    }
+    tags {
+      id
+      name
+      sceneCount
+    }
+    studios {
+      id
+      name
+      imagePath
+    }
+    galleries {
+      id
+      title
+      coverPath
+    }
+    groups {
+      id
+      name
+      thumbnailPath
+    }
+    markers {
+      id
+      title
+      sceneId
+      sceneName
+      seconds
+    }
+    totalCounts {
+      scenes
+      performers
+      tags
+      studios
+      galleries
+      groups
+      markers
+    }
+  }
+}

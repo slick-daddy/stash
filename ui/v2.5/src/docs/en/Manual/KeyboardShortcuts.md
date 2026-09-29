@@ -5,6 +5,7 @@
 | Keyboard sequence | Action |
 |-------------------|--------|
 | `?` | Display manual |
+| `Ctrl + K` (`Cmd + K` on macOS) | Open and focus the search bar |
 
 ### Global navigation
 
