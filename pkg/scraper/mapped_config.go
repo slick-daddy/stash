@@ -54,16 +54,18 @@ func (s mappedConfig) process(ctx context.Context, q mappedQuery, common commonM
 		if attrConfig.Fixed != "" {
 			// TODO - not sure if this needs to set _all_ indexes for the key
 			const i = 0
-			// Support {inputURL} and {inputHostname} placeholders in fixed values
+			// Support input placeholders in fixed values
 			value := strings.ReplaceAll(attrConfig.Fixed, "{inputURL}", q.getURL())
 			value = strings.ReplaceAll(value, "{inputHostname}", extractHostname(q.getURL()))
+			value = strings.ReplaceAll(value, "{inputName}", q.getName())
 			ret = ret.setSingleValue(i, k, value)
 		} else {
 			selector := attrConfig.Selector
 			selector = s.applyCommon(common, selector)
-			// Support {inputURL} and {inputHostname} placeholders in selectors
+			// Support input placeholders in selectors
 			selector = strings.ReplaceAll(selector, "{inputURL}", q.getURL())
 			selector = strings.ReplaceAll(selector, "{inputHostname}", extractHostname(q.getURL()))
+			selector = strings.ReplaceAll(selector, "{inputName}", q.getName())
 
 			found, err := q.runQuery(selector)
 			if err != nil {

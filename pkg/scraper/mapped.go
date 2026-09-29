@@ -13,6 +13,7 @@ type mappedQuery interface {
 	setType(QueryType)
 	subScrape(ctx context.Context, value string) mappedQuery
 	getURL() string
+	getName() string
 }
 
 type mappedScrapers map[string]mappedScraper

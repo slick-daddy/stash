@@ -133,6 +133,7 @@ func (s *jsonNameScraper) scrapeByName(ctx context.Context, name string, ty Scra
 	}
 
 	q := s.getJsonQuery(doc, url)
+	q.name = name
 	q.setType(SearchQuery)
 
 	var content []ScrapedContent
@@ -285,6 +286,7 @@ type jsonQuery struct {
 	scraper   *jsonScraper
 	queryType QueryType
 	url       string
+	name      string
 }
 
 func (q *jsonQuery) getType() QueryType {
@@ -297,6 +299,10 @@ func (q *jsonQuery) setType(t QueryType) {
 
 func (q *jsonQuery) getURL() string {
 	return q.url
+}
+
+func (q *jsonQuery) getName() string {
+	return q.name
 }
 
 func (q *jsonQuery) runQuery(selector string) ([]string, error) {

@@ -2,8 +2,13 @@ package scraper
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 
+	"github.com/stashapp/stash/pkg/models"
 	"gopkg.in/yaml.v2"
 )
 
@@ -115,4 +120,54 @@ jsonScrapers:
 	if scrapedPerformer != nil {
 		t.Errorf("expected nil scraped performer when not found, got %v", scrapedPerformer)
 	}
+}
+
+func TestJsonInputNamePlaceholder(t *testing.T) {
+	const inputName = "Renée 名"
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.Query().Get("q"); got != inputName {
+			t.Errorf("expected query name %q, got %q", inputName, got)
+		}
+		fmt.Fprintf(w, `{"data":[{"title":%q}]}`, inputName)
+	}))
+	defer ts.Close()
+
+	yamlStr := `name: Test
+sceneByName:
+  action: scrapeJson
+  queryURL: ` + ts.URL + `/search?q={}
+  scraper: sceneSearch
+jsonScrapers:
+  sceneSearch:
+    scene:
+      Title: 'data.#(title=="{inputName}").title'
+      Details:
+        fixed: "{inputName}"
+      Code:
+        fixed: "{inputURL}"
+`
+
+	c := &Definition{}
+	if err := yaml.Unmarshal([]byte(yamlStr), c); err != nil {
+		t.Fatalf("Error loading yaml: %s", err.Error())
+	}
+
+	s := scraperFromDefinition(*c, mockGlobalConfig{})
+	content, err := s.viaName(context.Background(), &http.Client{}, inputName, ScrapeContentTypeScene)
+	if err != nil {
+		t.Fatalf("Error searching for scene: %s", err.Error())
+	}
+	if len(content) != 1 {
+		t.Fatalf("Expected one scene, got %d", len(content))
+	}
+
+	scene, ok := content[0].(*models.ScrapedScene)
+	if !ok {
+		t.Fatal("couldn't convert scraped content into a scene")
+	}
+
+	verifyField(t, inputName, scene.Title, "Title")
+	verifyField(t, inputName, scene.Details, "Details")
+	verifyField(t, ts.URL+`/search?q=`+url.QueryEscape(inputName), scene.Code, "Code")
 }

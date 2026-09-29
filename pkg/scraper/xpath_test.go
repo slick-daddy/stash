@@ -980,3 +980,53 @@ xPathScrapers:
 
 	verifyField(t, "The name", performer.Name, "Name")
 }
+
+func TestXPathInputNamePlaceholder(t *testing.T) {
+	const inputName = "Renée 名"
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.Query().Get("q"); got != inputName {
+			t.Errorf("expected query name %q, got %q", inputName, got)
+		}
+		fmt.Fprintf(w, `<div data-name="%s">%s</div>`, inputName, inputName)
+	}))
+	defer ts.Close()
+
+	yamlStr := `name: Test
+performerByName:
+  action: scrapeXPath
+  queryURL: ` + ts.URL + `/search?q={}
+  scraper: performerSearch
+xPathScrapers:
+  performerSearch:
+    performer:
+      Name: //div[@data-name="{inputName}"]
+      Details:
+        fixed: "{inputName}"
+      URL:
+        fixed: "{inputURL}"
+`
+
+	c := &Definition{}
+	if err := yaml.Unmarshal([]byte(yamlStr), c); err != nil {
+		t.Fatalf("Error loading yaml: %s", err.Error())
+	}
+
+	s := scraperFromDefinition(*c, mockGlobalConfig{})
+	content, err := s.viaName(context.Background(), &http.Client{}, inputName, ScrapeContentTypePerformer)
+	if err != nil {
+		t.Fatalf("Error searching for performer: %s", err.Error())
+	}
+	if !assert.Len(t, content, 1) {
+		return
+	}
+
+	performer, ok := content[0].(*models.ScrapedPerformer)
+	if !assert.True(t, ok, "couldn't convert scraped content into a performer") {
+		return
+	}
+
+	verifyField(t, inputName, performer.Name, "Name")
+	verifyField(t, inputName, performer.Details, "Details")
+	verifyField(t, ts.URL+`/search?q=Ren%C3%A9e+%E5%90%8D`, performer.URL, "URL")
+}

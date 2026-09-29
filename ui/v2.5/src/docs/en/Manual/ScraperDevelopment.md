@@ -327,9 +327,9 @@ performer:
     fixed: Female
 ```
 
-### Input URL placeholders
+### Input placeholders
 
-The `{inputURL}` and `{inputHostname}` placeholders can be used in both `fixed` values and `selector` expressions to access information about the original URL that was used to scrape the content.
+The `{inputURL}`, `{inputHostname}`, and `{inputName}` placeholders can be used in both `fixed` values and `selector` expressions. The URL placeholders provide information about the URL used to scrape the content, while `{inputName}` provides the original value used for a name search.
 
 #### {inputURL}
 
@@ -359,7 +359,26 @@ scene:
 
 When scraping from `https://example.com/scene/12345`, the `{inputHostname}` placeholder will be replaced with `example.com`.
 
-These placeholders can also be used within selectors for more advanced use cases:
+#### {inputName}
+
+The `{inputName}` placeholder is available to mapped `performerByName` and `sceneByName` scrapers. It contains the original search value without URL encoding, while the `{}` placeholder in `queryURL` continues to use the URL-encoded value. For other scrape types, `{inputName}` is replaced with an empty string.
+
+This is useful for filtering entries on a static catalog page, including searches containing non-ASCII characters:
+
+```yaml
+sceneByName:
+  action: scrapeXPath
+  queryURL: "https://example.com/catalog.html"
+  scraper: sceneSearch
+
+xPathScrapers:
+  sceneSearch:
+    scene:
+      Title:
+        selector: //h3[contains(text(), "{inputName}")]
+```
+
+Input placeholders can also be used within selectors for more advanced use cases:
 
 ```yaml
 scene:
@@ -369,7 +388,7 @@ scene:
     selector: //div[@data-host="{inputHostname}"]//span[@class="site-name"]
 ```
 
-> **⚠️ Note:** These placeholders represent the actual URL used to fetch the content, after any URL replacements have been applied.
+> **⚠️ Note:** The URL placeholders represent the actual URL used to fetch the content, after any URL replacements have been applied.
 
 ### Common fragments
 
